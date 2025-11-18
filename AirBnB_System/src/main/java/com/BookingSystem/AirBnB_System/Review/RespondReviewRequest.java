@@ -1,0 +1,14 @@
+package com.BookingSystem.AirBnB_System.Review;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public class RespondReviewRequest {
+    @NotBlank
+    @Size(max=2000)
+    private String response;
+
+    public String getResponse() { return response; }
+    public void setResponse(String response) { this.response = response; }
+
+}
