@@ -1,25 +1,85 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+import Login from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import GuestDashboard from "./pages/GuestDashboard";
+import HostDashboard from "./pages/HostDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import DashboardLayout from "./layout/DashboardLayout";
+import UserProfile from "./layout/UserProfile";
+import PropertyList from "./components/Property/PropertyList";
+import BookingsPage from "./components/Booking/BookingPage";
+import ReviewsPage from "./components/Reviews/ReviewsPage";
+
+// ✅ Define User type to match backend DTO
+interface User {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: "GUEST" | "HOST" | "ADMIN";
+  profilePhotoPath: string | null;
+  createdAt: string;
+}
 
 function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+    axios
+      .get<User>("http://localhost:8000/api/user/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setUser(res.data))
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <BrowserRouter>
+      <Routes>
+        {/* --- Public Routes --- */}
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* --- Protected Routes (for all roles) --- */}
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={["GUEST", "HOST", "ADMIN"]}>
+              <DashboardLayout user={user} />
+            </ProtectedRoute>
+          }
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          {/* ✅ Role-specific dashboards */}
+          <Route path="/guest/dashboard" element={<GuestDashboard />} />
+          
+          <Route path="/host/dashboard" element={<HostDashboard />} />
+          <Route path="/host/bookings" element={<PropertyList/>}/>
+          <Route path="/guest/review" element={<ReviewsPage />}/>
+          <Route path="/guest/bookings" element={<BookingsPage/>}/>
+          <Route path="/host/properties" element={<BookingsPage/>}/>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+          {/* ✅ Common Profile route for all roles */}
+          <Route path="/profile" element={<UserProfile />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
