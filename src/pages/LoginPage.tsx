@@ -5,6 +5,8 @@ import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
 import toast, { Toaster } from "react-hot-toast";
+import { saveAuthData } from "../utils/tokenStorage";
+import axiosClient from "../api/axiosClient";
 
 interface LoginForm {
   email: string;
@@ -42,8 +44,8 @@ export default function Login() {
   };
 
   const handleLoginSuccess = (token: string) => {
-    localStorage.setItem("token", token);
     const decoded: JwtPayload = jwtDecode(token);
+    saveAuthData(token, decoded.role);
     console.log("Decoded JWT:", decoded);
     localStorage.setItem("role", decoded.role);
     redirectToDashboard(decoded.role);
@@ -52,7 +54,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
-    const res = await axios.post("http://localhost:8000/api/auth/login", form);
+    const res = await axiosClient.post("/auth/login", form);
 
     const token = res.data.accessToken; 
     handleLoginSuccess(token); 
@@ -66,17 +68,15 @@ export default function Login() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      // Google JWT token
       const token = credentialResponse.credential;
       console.log("Google token:", token);
 
-      // Optionally send to backend to create/check user
-      const res = await axios.post("http://localhost:8000/api/auth/google-login", {
-        token, // send Google token
+      const res = await axios.post("/auth/google-login", {
+        token, 
       });
       console.log("Google login backend response:", res.data);
 
-      handleLoginSuccess(res.data.token); // Use backend-issued JWT
+      handleLoginSuccess(res.data.token); 
       toast.success("Google login successful!");
     } catch (err: any) {
       console.error("Google login error:", err);

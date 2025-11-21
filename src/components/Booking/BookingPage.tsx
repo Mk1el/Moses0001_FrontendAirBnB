@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import { toast } from "react-hot-toast";
-import PaymentForm from "../Payment/PaymentForm"; // <- adjust path if needed
+import PaymentForm from "../Payment/PaymentForm"; 
 
 interface Booking {
   bookingId: string;
@@ -30,8 +30,6 @@ const BookingsPage: React.FC = () => {
     startDate: "",
     endDate: "",
   });
-
-  // Payment modal state
   const [showPayment, setShowPayment] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
@@ -130,7 +128,6 @@ const BookingsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow-md">
         <table className="min-w-full border-collapse">
           <thead className="bg-gray-100 text-gray-700">
@@ -195,7 +192,6 @@ const BookingsPage: React.FC = () => {
                       </button>
                     )}
 
-                    {/* Cancel (Guest) */}
                     {role === "GUEST" && b.status !== "CANCELED" && (
                       <button
                         onClick={() => cancelBooking(b.bookingId)}

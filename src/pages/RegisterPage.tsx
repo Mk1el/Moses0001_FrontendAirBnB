@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import axiosClient from "../api/axiosClient";
 
 interface RegisterForm {
   firstName: string;
@@ -68,7 +69,7 @@ export default function Register() {
     if (!validateForm()) return;
 
     try {
-      await axios.post("http://localhost:8000/api/auth/register", form);
+      await axiosClient.post("/auth/register", form);
       toast.success("Registration successful! Please login.");
 
       setTimeout(() => navigate("/"), 1500);
