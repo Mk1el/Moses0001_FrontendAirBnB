@@ -50,9 +50,6 @@ public class MpesaService {
     public StkResponse stkPush(Booking booking, BigDecimal amount, String phoneNumber, String paymentId) {
         String token = fetchOauthToken();
 
-        // LOG 1: Confirms successful token acquisition
-        log.info("Mpesa Token obtained: {}", token);
-
         String timestamp = java.time.format.DateTimeFormatter
                 .ofPattern("yyyyMMddHHmmss")
                 .withZone(java.time.ZoneId.of("Africa/Nairobi"))
@@ -61,11 +58,6 @@ public class MpesaService {
         String rawPassword = shortcode + passkey + timestamp;
         String password = Base64.getEncoder()
                 .encodeToString(rawPassword.getBytes(StandardCharsets.UTF_8));
-
-        // LOG 2 & 3: Confirms Shortcode/Passkey/Timestamp are correctly concatenated and encoded
-        log.info("STK Push Raw Password: {}", rawPassword);
-        log.info("STK Push Encoded Password: {}", password);
-
         Map<String, Object> body = new HashMap<>();
         body.put("BusinessShortCode", shortcode);
         body.put("Password", password);
@@ -83,17 +75,9 @@ public class MpesaService {
         headers.setBearerAuth(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // LOG 4: Confirms all headers sent with the STK Push request
-        log.info("STK Push Request Headers: {}", headers.toString());
-
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-        // LOG 5: Confirms the final JSON body sent for the STK Push request
-        log.info("STK Push Request Body: {}", request.getBody());
-
-        try {
+               try {
             ResponseEntity<StkResponse> response = rest.postForEntity(stkPushUrl, request, StkResponse.class);
-            // LOG 6: Logs success response
-            log.info("STK Push Success Response: {}", response.getBody());
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
@@ -118,16 +102,8 @@ public class MpesaService {
             String credentials = consumerKey + ":" + consumerSecret;
             String encodedCredentials = Base64.getEncoder()
                     .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-
-            // LOG 7: Confirms the encoded credentials sent for OAuth
-            log.info("OAuth Basic Auth Credentials: {}", encodedCredentials);
-
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "Basic " + encodedCredentials);
-
-            // LOG 8: Confirms the headers sent for OAuth
-            log.info("OAuth Request Headers: {}", headers.toString());
-
             HttpEntity<String> request = new HttpEntity<>(headers);
 
             ResponseEntity<Map> response = rest.exchange(

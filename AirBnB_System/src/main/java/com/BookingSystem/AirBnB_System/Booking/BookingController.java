@@ -63,7 +63,6 @@ public class BookingController {
         // let the service handle permission checks (owner/admin/host)
         return ResponseEntity.ok(bookingService.markPaymentFailed(id, callerUserId));
     }
-    // Host: list guests who have paid for this host's properties (so host can validate/activate)
     @PreAuthorize("hasAuthority('HOST')")
     @GetMapping("/host/paid-guests")
     public ResponseEntity<?> hostPaidGuests(@AuthenticationPrincipal UserDetails principal) {

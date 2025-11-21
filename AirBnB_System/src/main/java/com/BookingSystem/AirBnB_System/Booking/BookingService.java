@@ -210,14 +210,12 @@ public class BookingService {
         // 1) set booking status back to PENDING so user can retry
         booking.setStatus(BookingStatus.PENDING);
         bookingRepo.save(booking);
-
-        // 2) mark the latest payment (if any) as FAILED
         Optional<Payment> lastPaymentOpt = paymentRepo.findTopByBooking_BookingIdOrderByCreatedAtDesc(bookingId);
         lastPaymentOpt.ifPresent(p -> {
             p.setStatus(PaymentStatus.FAILED);
             paymentRepo.save(p);
         });
 
-        return toDTO(booking); // reuse your existing mapping method
+        return toDTO(booking);
     }
 }
