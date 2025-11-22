@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { getUserFromToken } from "../utils/auth";
+import axiosClient from "../api/axiosClient";
 
 interface UserProfile {
   firstName: string;
@@ -21,7 +22,7 @@ export default function Header() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/user/me", {
+      const res = await axiosClient.get("/user/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfile(res.data);
@@ -42,7 +43,7 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-md px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-      {/* Logo */}
+      
       <Link to="/host/dashboard" className="text-xl font-bold text-red-600 tracking-wide cursor-pointer">
         AirBnB Lite
       </Link>

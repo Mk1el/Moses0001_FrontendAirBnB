@@ -13,9 +13,9 @@ import UserProfile from "./layout/UserProfile";
 import PropertyList from "./components/Property/PropertyList";
 import BookingsPage from "./components/Booking/BookingPage";
 import ReviewsPage from "./components/Reviews/ReviewsPage";
+import axiosClient from "./api/axiosClient";
 
-// ✅ Define User type to match backend DTO
-interface User {
+interface Role {
   userId: string;
   firstName: string;
   lastName: string;
@@ -27,25 +27,32 @@ interface User {
 }
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     setIsLoading(false);
+  //     return;
+  //   }
 
-    axios
-      .get<User>("http://localhost:8000/api/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
-      .finally(() => setIsLoading(false));
-  }, []);
-
+  //   axios
+  //     .get<User>("http://localhost:8000/api/user/me", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     })
+  //     .then((res) => setUser(res.data))
+  //     .catch(() => setUser(null))
+  //     .finally(() => setIsLoading(false));
+  // }, []);
+  useEffect(()=>{
+    
+    axiosClient.get("/user/me")
+    .then((res)=> setRole(res.data))
+    .catch(()=> setRole(null))
+    .finally(()=> setIsLoading(false))
+    
+  },[])
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -53,19 +60,15 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* --- Public Routes --- */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<RegisterPage />} />
-
-        {/* --- Protected Routes (for all roles) --- */}
         <Route
           element={
             <ProtectedRoute allowedRoles={["GUEST", "HOST", "ADMIN"]}>
-              <DashboardLayout user={user} />
+              <DashboardLayout user={role} />
             </ProtectedRoute>
           }
         >
-          {/* ✅ Role-specific dashboards */}
           <Route path="/guest/dashboard" element={<GuestDashboard />} />
           
           <Route path="/host/dashboard" element={<HostDashboard />} />
@@ -75,7 +78,6 @@ function App() {
           <Route path="/host/properties" element={<BookingsPage/>}/>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-          {/* ✅ Common Profile route for all roles */}
           <Route path="/profile" element={<UserProfile />} />
         </Route>
       </Routes>

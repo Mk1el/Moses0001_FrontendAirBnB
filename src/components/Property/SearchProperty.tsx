@@ -113,7 +113,6 @@ const SearchProperty: React.FC = () => {
 
         {error && <p className="text-center text-red-600 font-medium">{error}</p>}
 
-        {/* ================= RESULTS ================= */}
         <div className="mt-8">
           {loading ? (
             <p className="text-center text-gray-500 animate-pulse">
