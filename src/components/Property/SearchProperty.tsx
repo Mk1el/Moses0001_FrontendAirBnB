@@ -31,9 +31,7 @@ const SearchProperty: React.FC = () => {
     setLoading(true);
 
     try {
-      let url = `/api/properties/search?`;
-
-      // Build query dynamically according to the filter type
+      let url = `/properties/search?`;
       switch (filterType) {
         case "location":
           url += `location=${encodeURIComponent(query)}`;

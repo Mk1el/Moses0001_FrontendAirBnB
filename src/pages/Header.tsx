@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import toast from "react-hot-toast";
@@ -15,16 +14,11 @@ export default function Header() {
   const navigate = useNavigate();
   const decodedUser = getUserFromToken();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-
-  const token = localStorage.getItem("token");
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const fetchProfile = async () => {
     try {
-      const res = await axiosClient.get("/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosClient.get("/user/me");
       setProfile(res.data);
     } catch (err) {
       console.error(err);
@@ -32,8 +26,8 @@ export default function Header() {
   };
 
   useEffect(() => {
-    if (token) fetchProfile();
-  }, [token]);
+    fetchProfile();
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -41,32 +35,55 @@ export default function Header() {
     navigate("/");
   };
 
+  const getDashboardLink = () => {
+    switch (decodedUser?.role) {
+      case "HOST":
+        return "/host/dashboard";
+      case "GUEST":
+        return "/guest/dashboard";
+      case "ADMIN":
+        return "/admin/dashboard";
+      default:
+        return "/";
+    }
+  };
+
+  // Menu items based on role
+  const menuItems = () => {
+    const items: { label: string; path: string }[] = [];
+    if (decodedUser?.role === "HOST") {
+      items.push({ label: "My Listings", path: "/host/properties" });
+    } else if (decodedUser?.role === "GUEST") {
+      items.push({ label: "My Bookings", path: "/guest/bookings" });
+    } else if (decodedUser?.role === "ADMIN") {
+      items.push({ label: "Admin Panel", path: "/admin/dashboard" });
+    }
+    return items;
+  };
+
   return (
     <header className="bg-white shadow-md px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-      
-      <Link to="/host/dashboard" className="text-xl font-bold text-red-600 tracking-wide cursor-pointer">
+      {/* Logo / Dashboard Link */}
+      <Link
+        to={getDashboardLink()}
+        className="text-xl font-bold text-red-600 tracking-wide cursor-pointer"
+      >
         AirBnB Lite
       </Link>
 
       {/* Desktop Menu */}
       <nav className="hidden md:flex gap-6 items-center">
-        {decodedUser?.role === "HOST" && (
-          <Link className="hover:text-red-600" to="/host/properties">My Listings</Link>
-        )}
+        {menuItems().map((item, idx) => (
+          <Link key={idx} to={item.path} className="hover:text-red-600">
+            {item.label}
+          </Link>
+        ))}
 
-        {decodedUser?.role === "GUEST" && (
-          <Link className="hover:text-red-600" to="/guest/bookings">My Bookings</Link>
-        )}
-
-        {decodedUser?.role === "ADMIN" && (
-          <Link className="hover:text-red-600" to="/admin/dashboard">Admin Panel</Link>
-        )}
-
-        {/* Profile Button */}
+        {/* Profile Dropdown */}
         <div className="relative">
           <button
             className="flex items-center gap-2 bg-gray-200 rounded-full px-3 py-1"
-            onClick={() => setShowProfile(!showProfile)}
+            onClick={() => setShowSidebar((prev) => !prev)}
           >
             <img
               src={profile?.profilePhotoPath || "https://via.placeholder.com/35?text=P"}
@@ -74,10 +91,12 @@ export default function Header() {
             />
             {profile?.firstName || "User"}
           </button>
-
-          {showProfile && (
+          {showSidebar && (
             <div className="absolute right-0 mt-2 w-40 bg-white shadow rounded-md text-sm">
-              <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 rounded">
+              <Link
+                to="/profile"
+                className="block px-4 py-2 hover:bg-gray-100 rounded"
+              >
                 Profile
               </Link>
               <button
@@ -92,24 +111,56 @@ export default function Header() {
       </nav>
 
       {/* Mobile Hamburger */}
-      <button className="md:hidden" onClick={() => setShowMenu(true)}>
+      <button
+        className="md:hidden"
+        onClick={() => setShowSidebar(true)}
+      >
         <Menu size={26} />
       </button>
 
-      {/* Mobile Menu */}
-      {showMenu && (
-        <div className="absolute top-0 right-0 bg-white w-64 h-screen shadow-lg p-6 md:hidden">
-          <button className="absolute top-4 right-4" onClick={() => setShowMenu(false)}>
-            <X />
-          </button>
+      {/* Mobile Sidebar */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black opacity-50"
+            onClick={() => setShowSidebar(false)}
+          />
 
-          <div className="mt-12 flex flex-col gap-4">
-            <Link to="/profile" onClick={() => setShowMenu(false)}>
-              Profile
-            </Link>
-            <button onClick={logout} className="text-left text-red-600">
-              Logout
+          {/* Sidebar */}
+          <div className="relative w-64 bg-white shadow-lg p-6 flex flex-col">
+            <button
+              className="absolute top-4 right-4"
+              onClick={() => setShowSidebar(false)}
+            >
+              <X />
             </button>
+
+            <div className="mt-12 flex flex-col gap-4">
+              {menuItems().map((item, idx) => (
+                <Link
+                  key={idx}
+                  to={item.path}
+                  onClick={() => setShowSidebar(false)}
+                  className="text-lg font-medium hover:text-red-600"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <Link
+                to="/profile"
+                onClick={() => setShowSidebar(false)}
+                className="text-lg font-medium hover:text-red-600"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={logout}
+                className="text-left text-red-600 font-medium"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       )}

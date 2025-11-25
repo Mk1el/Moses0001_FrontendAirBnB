@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import PropertyForm from "./PropertyForm";
+import ReusableTable, { TableColumn } from "../../reusable-components/reusable-table";
+import ReusableForm, { FormField } from "../../reusable-components/reusable-form";
 
 export default function PropertyList() {
   const [properties, setProperties] = useState<any[]>([]);
@@ -8,9 +10,45 @@ export default function PropertyList() {
   const [open, setOpen] = useState(false);
 
   // Fetch Properties
+
+  const columns: TableColumn<any>[] = [
+  { key: "name", label: "Name" },
+  { key: "location", label: "Location" },
+  { key: "pricePerNight", label: "Price/Night" },
+  { key: "currency", label: "Currency" },
+  {
+    key: "actions",
+    label: "Actions",
+    render: (row) => (
+      <div className="flex justify-center gap-2">
+        <button
+          onClick={() => { /* edit logic */ }}
+          className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => { /* delete logic */ }}
+          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+      </div>
+    ),
+    className: "text-center",
+  },
+];
+const fields: FormField[] = [
+  { name: "name", label: "Property Name", required: true },
+  { name: "description", label: "Description", type: "textarea", required: true },
+  { name: "location", label: "Location", required: true },
+  { name: "price", label: "Price per Night", type: "number", required: true },
+  { name: "currency", label: "Currency", required: true },
+];
+
   const fetchProperties = async () => {
     try {
-      const res = await axiosClient.get("api/properties/host/my-properties");
+      const res = await axiosClient.get("properties/host/my-properties");
       setProperties(res.data);
     } catch (err) {
       console.error("Error fetching properties:", err);
@@ -40,7 +78,6 @@ export default function PropertyList() {
 
   return (
     <div className="p-4 md:p-8 space-y-8">
-      {/* ===================== TOP WIDGETS ===================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center">
           <span className="text-gray-500 text-sm">Total Properties</span>
@@ -66,7 +103,6 @@ export default function PropertyList() {
         </div>
       </div>
 
-      {/* ===================== HEADER + ADD BUTTON ===================== */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-gray-700">My Properties</h2>
         <button
@@ -80,56 +116,8 @@ export default function PropertyList() {
         </button>
       </div>
 
-      {/* ===================== TABLE ===================== */}
       <div className="overflow-x-auto bg-white shadow-md rounded-2xl">
-        <table className="min-w-full text-left border-collapse">
-          <thead className="bg-blue-600 text-white">
-            <tr>
-              <th className="p-3">Name</th>
-              <th className="p-3">Location</th>
-              <th className="p-3">Price/Night</th>
-              <th className="p-3">Currency</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {properties.map((p, i) => (
-              <tr
-                key={p.property_id}
-                className={`border-b ${i % 2 ? "bg-gray-50" : "bg-white"} hover:bg-green-50`}
-              >
-                <td className="p-3">{p.name}</td>
-                <td className="p-3">{p.location}</td>
-                <td className="p-3">{p.pricePerNight}</td>
-                <td className="p-3">{p.currency}</td>
-                <td className="p-3 flex justify-center gap-2">
-                  <button
-                    onClick={() => {
-                      setEditing(p);
-                      setOpen(true);
-                    }}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.property_id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {properties.length === 0 && (
-              <tr>
-                <td colSpan={5} className="text-center text-gray-500 p-4">
-                  No properties found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <ReusableTable data={properties} columns={columns} noDataMessage="No properties found." />;
       </div>
 
       {/* ===================== DIALOG (MODAL) ===================== */}
@@ -145,13 +133,16 @@ export default function PropertyList() {
             <h3 className="text-xl font-semibold text-gray-700 mb-4">
               {editing ? "Edit Property" : "Add New Property"}
             </h3>
-            <PropertyForm
-              onSuccess={() => {
-                fetchProperties();
-                setOpen(false);
-              }}
-              editProperty={editing}
-            />
+            <ReusableForm
+  fields={fields}
+  data={editing} 
+  endpoint={editing ? `/properties/${editing.property_id}` : "/properties"}
+  method={editing ? "PUT" : "POST"}
+  onSuccess={() => {
+    fetchProperties();
+    setOpen(false);
+  }}
+/>
           </div>
         </div>
       )}

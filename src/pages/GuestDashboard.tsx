@@ -26,7 +26,7 @@ export default function PropertyDetails() {
 
   const fetchProperties = async () => {
     try {
-      const response = await axiosClient.get("/api/properties/guest/all-properties");
+      const response = await axiosClient.get("/properties/guest/all-properties");
       const allProperties: Property[] = response.data;
       setProperties(allProperties);
 

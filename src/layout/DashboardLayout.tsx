@@ -10,7 +10,6 @@ interface User {
   firstName: string;
 }
 
-// Accept the user as a prop
 const DashboardLayout: React.FC<{ user: User | null }> = ({ user }) => {
   return (
     <div className="min-h-screen bg-gray-50">
