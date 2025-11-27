@@ -49,7 +49,6 @@ export default function Sidebar({ userRole, isOpen = false, onClose }: SidebarPr
   const shouldShow = (label: string) =>
     label.toLowerCase().includes(searchText.toLowerCase());
 
-  // Sidebar menu items by role
   const renderMenu = () => {
     switch (activeRole) {
       case "GUEST":

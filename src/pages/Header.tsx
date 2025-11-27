@@ -15,6 +15,11 @@ export default function Header() {
   const decodedUser = getUserFromToken();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -24,10 +29,6 @@ export default function Header() {
       console.error(err);
     }
   };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -48,33 +49,31 @@ export default function Header() {
     }
   };
 
-  // Menu items based on role
   const menuItems = () => {
     const items: { label: string; path: string }[] = [];
     if (decodedUser?.role === "HOST") {
       items.push({ label: "My Listings", path: "/host/properties" });
-    } else if (decodedUser?.role === "GUEST") {
+    }
+    if (decodedUser?.role === "GUEST") {
       items.push({ label: "My Bookings", path: "/guest/bookings" });
-    } else if (decodedUser?.role === "ADMIN") {
+    }
+    if (decodedUser?.role === "ADMIN") {
       items.push({ label: "Admin Panel", path: "/admin/dashboard" });
     }
     return items;
   };
 
   return (
-    <header className="bg-white shadow-md px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-      {/* Logo / Dashboard Link */}
-      <Link
-        to={getDashboardLink()}
-        className="text-xl font-bold text-red-600 tracking-wide cursor-pointer"
-      >
+    <header className="bg-white shadow-sm px-5 py-3 flex justify-between items-center sticky top-0 z-50">
+      {/* Logo */}
+      <Link to={getDashboardLink()} className="text-2xl font-bold text-red-600 tracking-wide hover:opacity-80 transition">
         AirBnB Lite
       </Link>
 
       {/* Desktop Menu */}
       <nav className="hidden md:flex gap-6 items-center">
         {menuItems().map((item, idx) => (
-          <Link key={idx} to={item.path} className="hover:text-red-600">
+          <Link key={idx} to={item.path} className="hover:text-red-600 text-gray-700 transition">
             {item.label}
           </Link>
         ))}
@@ -82,27 +81,22 @@ export default function Header() {
         {/* Profile Dropdown */}
         <div className="relative">
           <button
-            className="flex items-center gap-2 bg-gray-200 rounded-full px-3 py-1"
-            onClick={() => setShowSidebar((prev) => !prev)}
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 transition"
           >
             <img
-              src={profile?.profilePhotoPath || "https://via.placeholder.com/35?text=P"}
-              className="w-8 h-8 rounded-full"
+              src={profile?.profilePhotoPath || "https://via.placeholder.com/40"}
+              className="w-9 h-9 rounded-full"
             />
             {profile?.firstName || "User"}
           </button>
-          {showSidebar && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow rounded-md text-sm">
-              <Link
-                to="/profile"
-                className="block px-4 py-2 hover:bg-gray-100 rounded"
-              >
+
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-xl w-40 p-2 text-sm">
+              <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 rounded">
                 Profile
               </Link>
-              <button
-                onClick={logout}
-                className="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded"
-              >
+              <button onClick={logout} className="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded text-red-600">
                 Logout
               </button>
             </div>
@@ -110,54 +104,30 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Mobile Hamburger */}
-      <button
-        className="md:hidden"
-        onClick={() => setShowSidebar(true)}
-      >
-        <Menu size={26} />
+      <button className="md:hidden" onClick={() => setShowSidebar(true)}>
+        <Menu size={28} />
       </button>
 
       {/* Mobile Sidebar */}
       {showSidebar && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Overlay */}
-          <div
-            className="absolute inset-0 bg-black opacity-50"
-            onClick={() => setShowSidebar(false)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowSidebar(false)} />
 
-          {/* Sidebar */}
-          <div className="relative w-64 bg-white shadow-lg p-6 flex flex-col">
-            <button
-              className="absolute top-4 right-4"
-              onClick={() => setShowSidebar(false)}
-            >
-              <X />
+          <div className="relative w-72 bg-white shadow-xl p-6 flex flex-col animate-slideIn">
+            <button className="absolute top-4 right-4" onClick={() => setShowSidebar(false)}>
+              <X size={26} />
             </button>
 
-            <div className="mt-12 flex flex-col gap-4">
+            <div className="mt-12 flex flex-col gap-4 text-lg">
               {menuItems().map((item, idx) => (
-                <Link
-                  key={idx}
-                  to={item.path}
-                  onClick={() => setShowSidebar(false)}
-                  className="text-lg font-medium hover:text-red-600"
-                >
+                <Link key={idx} to={item.path} onClick={() => setShowSidebar(false)} className="hover:text-red-600 transition">
                   {item.label}
                 </Link>
               ))}
-              <Link
-                to="/profile"
-                onClick={() => setShowSidebar(false)}
-                className="text-lg font-medium hover:text-red-600"
-              >
+              <Link to="/profile" onClick={() => setShowSidebar(false)} className="hover:text-red-600">
                 Profile
               </Link>
-              <button
-                onClick={logout}
-                className="text-left text-red-600 font-medium"
-              >
+              <button onClick={logout} className="text-left text-red-600">
                 Logout
               </button>
             </div>

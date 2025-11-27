@@ -30,21 +30,6 @@ function App() {
   const [role, setRole] = useState<Role | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   axios
-  //     .get<User>("http://localhost:8000/api/user/me", {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     })
-  //     .then((res) => setUser(res.data))
-  //     .catch(() => setUser(null))
-  //     .finally(() => setIsLoading(false));
-  // }, []);
   useEffect(()=>{
     
     axiosClient.get("/user/me")
