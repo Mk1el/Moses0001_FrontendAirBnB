@@ -16,7 +16,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from Booking b where b.bookingId = :id")
     Optional<Booking> findByIdForUpdate(@Param("id") UUID id);
-    // find bookings overlapping a date range (excluding canceled)
     List<Booking> findByProperty_PropertyIdAndStatusInAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             UUID propertyId,
             List<BookingStatus> statuses,

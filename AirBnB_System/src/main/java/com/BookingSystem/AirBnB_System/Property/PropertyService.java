@@ -113,11 +113,12 @@ public class PropertyService {
         );
     }
     public List<PropertyDTO>searchProperties(String location,
+                                             String price,
                                              BigDecimal minPrice,
                                              BigDecimal maxPrice,
                                              Integer guests,
                                              String description) {
-        return repo.searchProperties(location, minPrice, maxPrice, guests, description)
+        return repo.searchProperties(location,price, minPrice, maxPrice, guests, description)
                 .stream()
                 .map(this::toDTO)
                 .toList();

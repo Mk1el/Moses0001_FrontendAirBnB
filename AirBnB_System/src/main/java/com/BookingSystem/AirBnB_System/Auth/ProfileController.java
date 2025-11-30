@@ -36,7 +36,6 @@ public class ProfileController {
                         user.getCreatedAt()
                 )
         );
-
     }
 
     // Update logged in user profile

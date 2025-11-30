@@ -18,10 +18,7 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    /**
-     * Initiate a payment for a booking
-     * Handles M-Pesa, Stripe, PayPal, and Airtel Money
-     */
+
     @PreAuthorize("hasAuthority('GUEST')")
     @PostMapping("/pay")
     public ResponseEntity<PaymentResponse> pay(@RequestBody PaymentRequest request) {

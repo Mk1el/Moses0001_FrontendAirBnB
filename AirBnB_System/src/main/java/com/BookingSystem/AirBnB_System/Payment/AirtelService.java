@@ -25,7 +25,6 @@ public class AirtelService {
     private final RestTemplate rest;
     private final ObjectMapper mapper;
 
-    // Configurable via application.properties
     @Value("${airtel.base-url:https://openapiuat.airtel.africa}")
     private String airtelBaseUrl;
 
@@ -44,7 +43,7 @@ public class AirtelService {
     // Token cache
     private static class Token {
         String accessToken;
-        Instant expiry; // when token expires
+        Instant expiry;
     }
 
     private final AtomicReference<Token> tokenCache = new AtomicReference<>();
@@ -114,8 +113,6 @@ public class AirtelService {
             if (body != null) {
                 json = mapper.readTree(body);
             }
-
-            // Try to read likely transaction id fields - many implementations return requestId / transactionId / id
             String txId = null;
             if (json != null) {
                 if (json.has("requestId")) txId = json.get("requestId").asText();

@@ -80,7 +80,6 @@ public class AuthController {
                 String name = (String) payload.get("name");
                 String pictureUrl = (String) payload.get("picture");
 
-                //  Now handle login / registration logic
                 User user = userService.findOrCreateUser(email, name, pictureUrl);
 
                 String jwt = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getRole().name());

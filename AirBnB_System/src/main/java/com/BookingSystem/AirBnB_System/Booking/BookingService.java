@@ -83,7 +83,7 @@ public class BookingService {
         List<Payment> payments = paymentRepo.findByBooking_User_UserIdAndStatus(userId, PaymentStatus.SUCCESS);
         return payments.stream()
                 .map(Payment::getBooking)
-                .distinct() // just in case multiple payments per booking
+                .distinct()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -124,9 +124,25 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
+    // BookingService.java
     public List<BookingDTO> getBookingsForUser(UUID userId) {
-        return bookingRepo.findByUser_UserId(userId).stream().map(this::toDTO).toList();
+        List<Booking> bookings = bookingRepo.findByUser_UserId(userId);
+
+        return bookings.stream()
+                .map(booking -> BookingDTO.builder()
+                        .bookingId(booking.getBookingId())
+                        .propertyId(booking.getProperty().getPropertyId())
+                        .propertyName(booking.getProperty().getName())
+                        .userId(booking.getUser().getUserId())
+                        .startDate(booking.getStartDate())
+                        .endDate(booking.getEndDate())
+                        .totalPrice(booking.getTotalPrice())
+                        .status(booking.getStatus())
+                        .createdAt(booking.getCreatedAt())
+                        .build()
+                ).toList();
     }
+
     public List<BookingDTO> getAwaitingPaymentBookings() {
         List<Booking> pendingBookings = bookingRepo.findByStatus(BookingStatus.PENDING);
         return pendingBookings.stream()

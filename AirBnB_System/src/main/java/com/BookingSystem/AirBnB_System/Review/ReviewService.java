@@ -65,7 +65,6 @@ public class ReviewService {
         Review review = reviewRepo.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
-        // ensure the responding user is the host of that property (or admin logic could go here)
         User host = userRepo.findByEmail(hostEmail).orElseThrow();
         if (!review.getProperty().getHost().getUserId().equals(host.getUserId()) && !host.getRole().name().equals("ADMIN")) {
             throw new SecurityException("Only the property's host or an admin may respond to this review");

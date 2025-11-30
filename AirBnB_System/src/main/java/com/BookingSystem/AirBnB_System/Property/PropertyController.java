@@ -30,12 +30,8 @@ public class PropertyController {
             @AuthenticationPrincipal UserDetails principal,
             @RequestBody PropertyRequest request
     ) {
-        System.out.println("[PropertyController#create] Authenticated principal: " + principal.getUsername());
-        System.out.println("[PropertyController#create] Authorities: " + principal.getAuthorities());
 
         var user = repo.findByEmail(principal.getUsername()).orElseThrow();
-        System.out.println("[PropertyController#create] Found hostId: " + user.getUserId());
-
         return ResponseEntity.ok(
                 service.create(
                         user.getUserId(),
@@ -96,16 +92,15 @@ public class PropertyController {
     @GetMapping("/search")
     public ResponseEntity<?> searchProperties(
             @RequestParam(required = false) String location,
+            @RequestParam(required = false) String price,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Integer guests,
             @RequestParam(required = false) String description
     )
     {
-        return ResponseEntity.ok(service.searchProperties(location, minPrice, maxPrice, guests, description));
+        return ResponseEntity.ok(service.searchProperties(location, price, minPrice, maxPrice, guests, description));
     }
-
-
     // ADMIN
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/admin/all")

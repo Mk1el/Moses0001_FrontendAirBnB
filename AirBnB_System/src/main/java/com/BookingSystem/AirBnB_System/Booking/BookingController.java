@@ -82,6 +82,7 @@ public class BookingController {
     public ResponseEntity<?> myBookings(@AuthenticationPrincipal UserDetails principal) {
         UUID userId = userRepo.findByEmail(principal.getUsername()).orElseThrow().getUserId();
         return ResponseEntity.ok(bookingService.getBookingsForUser(userId));
+
     }
 
     //  View bookings for a host’s properties
@@ -92,21 +93,21 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingsForHost(hostId));
     }
 
-    // 🔹 Cancel booking (Guest or Host)
+    //  Cancel booking (Guest or Host)
     @PreAuthorize("hasAnyAuthority('GUEST', 'HOST', 'ADMIN')")
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable UUID id) {
         return ResponseEntity.ok(bookingService.cancelBooking(id));
     }
 
-    // 🔹 Confirm booking (Host)
+    // Confirm booking (Host)
     @PreAuthorize("hasAuthority('HOST')")
     @PostMapping("/{id}/confirm")
     public ResponseEntity<?> confirmBooking(@PathVariable UUID id) {
         return ResponseEntity.ok(bookingService.confirmBooking(id));
     }
 
-    // 🔹 Admin CRUD operations
+    // Admin CRUD operations
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/admin/all")
     public ResponseEntity<?> allBookings() {
@@ -118,6 +119,20 @@ public class BookingController {
     public ResponseEntity<?> deleteBooking(@PathVariable UUID id) {
         bookingService.deleteBooking(id);
         return ResponseEntity.ok("Booking deleted successfully");
+    }
+    @PreAuthorize("hasAuthority('GUEST")
+    @GetMapping("/me/awaiting-payment")
+    public ResponseEntity<?> myAwaitingPaymentBookings(@AuthenticationPrincipal UserDetails principal) {
+        UUID userId = userRepo.findByEmail(principal.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getUserId();
+
+        return ResponseEntity.ok(
+                bookingService.getAwaitingPaymentBookings()
+                        .stream()
+                        .filter(b -> b.getUserId().equals(userId))
+                        .toList()
+        );
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

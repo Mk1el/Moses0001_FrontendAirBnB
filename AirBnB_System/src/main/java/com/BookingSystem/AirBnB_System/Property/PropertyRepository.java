@@ -14,12 +14,14 @@ public interface PropertyRepository extends JpaRepository<Property, UUID> {
     @Query("""
         SELECT p FROM Property p
         WHERE (:location IS NULL OR LOWER(p.location) LIKE LOWER(CONCAT('%', :location, '%')))
+          AND (:price IS NULL OR p.pricePerNight >= :price)
           AND (:minPrice IS NULL OR p.pricePerNight >= :minPrice)
           AND (:maxPrice IS NULL OR p.pricePerNight <= :maxPrice)
           AND (:description IS NULL OR LOWER(p.description) LIKE LOWER(CONCAT('%', :description, '%')))
     """)
     List <Property>searchProperties(
             @Param("location") String location,
+            @Param("price") String price,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("guests") Integer guests,

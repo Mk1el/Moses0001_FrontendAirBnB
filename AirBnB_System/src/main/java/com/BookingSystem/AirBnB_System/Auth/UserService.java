@@ -71,7 +71,7 @@ public class UserService {
             firstName = name;
         }
 
-        // ✅ Create and save a new user
+        //  Create and save a new user
         User newUser = User.builder()
                 .firstName(firstName)
                 .lastName(lastName)

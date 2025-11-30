@@ -1,6 +1,7 @@
 package com.BookingSystem.AirBnB_System.Auth.security;
 
 import com.BookingSystem.AirBnB_System.Auth.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,7 +37,8 @@ public class SecurityConfig {
         JwtAuthFilter jwtFilter = new JwtAuthFilter(jwtUtil, userDetailsService);
 
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
@@ -67,15 +69,39 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+
+         config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.addAllowedOriginPattern("*");
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
-        return new CorsFilter(source); // pass the source to the Spring filter
+        return new CorsFilter(source); 
     }
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        return new CorsFilter(request -> {
+//            CorsConfiguration config = new CorsConfiguration();
+//            config.setAllowCredentials(true);
+//
+//            // Get Origin from request dynamically
+//            String origin = request.getHeader("Origin");
+//            if (origin != null) {
+//                config.setAllowedOrigins(List.of(origin));
+//            } else {
+//                config.setAllowedOrigins(List.of("*"));
+//            }
+//
+//            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//            config.setAllowedHeaders(List.of("*"));
+//
+//            return config;
+//        });
+//    }
+
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
