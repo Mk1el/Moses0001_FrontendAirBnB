@@ -14,6 +14,7 @@ import PropertyList from "./components/Property/PropertyList";
 import BookingsPage from "./components/Booking/BookingPage";
 import ReviewsPage from "./components/Reviews/ReviewsPage";
 import axiosClient from "./api/axiosClient";
+import UserManagement from "./components/admin/user-management";
 
 interface Role {
   userId: string;
@@ -61,7 +62,9 @@ function App() {
           <Route path="/guest/review" element={<ReviewsPage />}/>
           <Route path="/guest/bookings" element={<BookingsPage/>}/>
           <Route path="/host/properties" element={<BookingsPage/>}/>
+
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement/>}/>
 
           <Route path="/profile" element={<UserProfile />} />
         </Route>

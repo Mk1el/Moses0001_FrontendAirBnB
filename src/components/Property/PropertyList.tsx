@@ -12,39 +12,39 @@ export default function PropertyList() {
   // Fetch Properties
 
   const columns: TableColumn<any>[] = [
-  { key: "name", label: "Name" },
-  { key: "location", label: "Location" },
-  { key: "pricePerNight", label: "Price/Night" },
-  { key: "currency", label: "Currency" },
-  {
-    key: "actions",
-    label: "Actions",
-    render: (row) => (
-      <div className="flex justify-center gap-2">
-        <button
-          onClick={() => { /* edit logic */ }}
-          className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => { /* delete logic */ }}
-          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
-        >
-          Delete
-        </button>
-      </div>
-    ),
-    className: "text-center",
-  },
-];
-const fields: FormField[] = [
-  { name: "name", label: "Property Name", required: true },
-  { name: "description", label: "Description", type: "textarea", required: true },
-  { name: "location", label: "Location", required: true },
-  { name: "price", label: "Price per Night", type: "number", required: true },
-  { name: "currency", label: "Currency", required: true },
-];
+    { key: "name", label: "Name" },
+    { key: "location", label: "Location" },
+    { key: "pricePerNight", label: "Price/Night" },
+    { key: "currency", label: "Currency" },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (row) => (
+        <div className="flex justify-center gap-2">
+          <button
+            onClick={() => { /* edit logic */ }}
+            className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => { /* delete logic */ }}
+            className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+      className: "text-center",
+    },
+  ];
+  const fields: FormField[] = [
+    { name: "name", label: "Property Name", required: true },
+    { name: "description", label: "Description", type: "textarea", required: true },
+    { name: "location", label: "Location", required: true },
+    { name: "price", label: "Price per Night", type: "number", required: true },
+    { name: "currency", label: "Currency", required: true },
+  ];
 
   const fetchProperties = async () => {
     try {
@@ -134,15 +134,15 @@ const fields: FormField[] = [
               {editing ? "Edit Property" : "Add New Property"}
             </h3>
             <ReusableForm
-  fields={fields}
-  data={editing} 
-  endpoint={editing ? `/properties/${editing.property_id}` : "/properties"}
-  method={editing ? "PUT" : "POST"}
-  onSuccess={() => {
-    fetchProperties();
-    setOpen(false);
-  }}
-/>
+              fields={fields}
+              data={editing}
+              endpoint={editing ? `/properties/${editing.property_id}` : "/properties"}
+              method={editing ? "PUT" : "POST"}
+              onSuccess={() => {
+                fetchProperties();
+                setOpen(false);
+              }}
+            />
           </div>
         </div>
       )}

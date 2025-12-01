@@ -1,10 +1,12 @@
-// src/components/DashboardWidget.tsx
 import React from "react";
+import { Box, Typography } from "@mui/material";
 
 interface WidgetItem {
   title: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   color?: string;
+  icon?: React.ReactNode;
+  subtitle?: string;
 }
 
 interface DashboardWidgetProps {
@@ -14,19 +16,74 @@ interface DashboardWidgetProps {
 
 const DashboardWidget: React.FC<DashboardWidgetProps> = ({ items, className }) => {
   return (
-    <section className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10 ${className}`}>
-      {items.map((card, idx) => (
-        <div
+    <Box
+      className={className}
+      display="grid"
+      gridTemplateColumns={{ xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }}
+      gap={3}
+      mb={4} // spacing from charts below
+    >
+      {items.map((item, idx) => (
+        <Box
           key={idx}
-          className="bg-white p-6 rounded-2xl shadow-md flex flex-col items-center hover:shadow-lg hover:scale-105 transition-all duration-300"
+          sx={{
+            bgcolor: "white",
+            p: 3,
+            borderRadius: 3,
+            border: "4px solid orange", // thick orange border
+            boxShadow: 3,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between", // utilizes vertical space
+            minHeight: 180, // ensures each widget has enough height
+            transition: "0.3s",
+            "&:hover": { boxShadow: 6, transform: "scale(1.03)" },
+          }}
         >
-          <span className="text-gray-500 text-sm">{card.title}</span>
-          <span className={`text-3xl font-bold mt-2 ${card.color || "text-gray-700"}`}>
-            {card.value}
-          </span>
-        </div>
+          {item.icon && (
+            <Box
+              sx={{
+                mb: 2,
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "background.default",
+                boxShadow: 1,
+              }}
+            >
+              {item.icon}
+            </Box>
+          )}
+
+          <Typography variant="subtitle2" color="text.secondary" sx={{ textAlign: "center", mb: 0.5 }}>
+            {item.title}
+          </Typography>
+
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            color={item.color || "text.primary"}
+            sx={{ textAlign: "center", mb: 1 }}
+          >
+            {item.value}
+          </Typography>
+
+          {item.subtitle && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textAlign: "center" }}
+            >
+              {item.subtitle}
+            </Typography>
+          )}
+        </Box>
       ))}
-    </section>
+    </Box>
   );
 };
 
