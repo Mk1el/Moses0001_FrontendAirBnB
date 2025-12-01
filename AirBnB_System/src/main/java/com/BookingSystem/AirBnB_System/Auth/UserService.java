@@ -1,5 +1,6 @@
 package com.BookingSystem.AirBnB_System.Auth;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -8,14 +9,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository repo;
     private final BCryptPasswordEncoder encoder;
     private final String uploadDir;
+
+    private UserDTO mapToDTO(User user){
+        return new UserDTO(
+                user.getUserId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getRole().name(),
+                user.getProfilePhotoPath(),
+                user.getCreatedAt(),
+                user.isActive()
+        );
+    }
 
     public UserService(UserRepository repo, BCryptPasswordEncoder encoder, @Value("${app.upload.dir}") String uploadDir) {
         this.repo = repo;
@@ -82,6 +99,25 @@ public class UserService {
 
         return repo.save(newUser);
     }
+    public List<UserDTO>getAllUsers(){
+        return repo.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+    public long getTotalUsers(){
+        return repo.count();
+    }
+    @Transactional
+    public UserDTO activateUser(UUID userId){
+        User user = repo.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
+        user.setActive(true);
+        return mapToDTO(user);
+    }
+    @Transactional
+    public UserDTO deactivateUser(UUID userId){
+        User user = repo.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
+        user.setActive(false);
+        return mapToDTO(user);
+    }
+
 
     // other methods: findByEmail, findById etc.
 }

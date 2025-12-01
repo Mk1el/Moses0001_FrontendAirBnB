@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
                         .requestMatchers("/api/user/**").hasAnyAuthority("GUEST", "HOST", "ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
+
                         .requestMatchers("/api/host/**").hasAnyRole("HOST", "ADMIN")
                         .requestMatchers("/api/guest/**").hasAnyRole("GUEST", "HOST", "ADMIN")
                         .anyRequest().permitAll()

@@ -56,5 +56,7 @@ public class User {
     protected void onCreate() {
         this.createdAt = Instant.now();
     }
+    @Column(name="active", nullable=false)
+    private boolean active = true;
 
 }

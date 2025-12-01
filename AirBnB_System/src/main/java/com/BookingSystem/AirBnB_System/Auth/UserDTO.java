@@ -17,4 +17,5 @@ public class UserDTO {
     private String role;
     private String profilePhotoPath;
     private Instant createdAt;
+    private boolean active;
 }

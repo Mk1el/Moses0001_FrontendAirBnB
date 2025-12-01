@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 public class ProfileController {
@@ -33,7 +35,8 @@ public class ProfileController {
                         user.getPhoneNumber(),
                         user.getRole().name(),
                         user.getProfilePhotoPath(),
-                        user.getCreatedAt()
+                        user.getCreatedAt(),
+                        user.isActive()
                 )
         );
     }
@@ -60,4 +63,6 @@ public class ProfileController {
 
         return ResponseEntity.ok("Profile updated successfully");
     }
+
+
 }
