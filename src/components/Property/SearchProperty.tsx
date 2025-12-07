@@ -31,9 +31,7 @@ const SearchProperty: React.FC = () => {
     setLoading(true);
 
     try {
-      let url = `/api/properties/search?`;
-
-      // Build query dynamically according to the filter type
+      let url = `/properties/search?`;
       switch (filterType) {
         case "location":
           url += `location=${encodeURIComponent(query)}`;
@@ -113,7 +111,6 @@ const SearchProperty: React.FC = () => {
 
         {error && <p className="text-center text-red-600 font-medium">{error}</p>}
 
-        {/* ================= RESULTS ================= */}
         <div className="mt-8">
           {loading ? (
             <p className="text-center text-gray-500 animate-pulse">

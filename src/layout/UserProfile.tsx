@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {User, Phone, Mail, Calendar, Shield } from "lucide-react";
+import axiosClient from "../api/axiosClient";
 
 interface UserDTO {
   userId: string;
@@ -15,33 +16,42 @@ export default function UserProfile(){
     const [user, setUser] = useState<UserDTO | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    useEffect(()=>{
-        const token = localStorage.getItem("token");
-        fetch("http://localhost:8000/api/user/me",{
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-            }
-        }).then(async (res) => {
-        if (!res.ok) {
-          const msg = await res.text();
-          throw new Error(msg || `Error ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setUser(data);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch user:", err);
-        setError("Failed to load user profile.");
-      }).finally(()=>{
-        setLoading(false);
-      });
-    }, []);
+    // useEffect(()=>{
+    //     axiosClient.get("/user/me",{
+          
+    //     }).then(async (res) => {
+    //     if (!res.ok) {
+    //       const msg = await res.text();
+    //       throw new Error(msg || `Error ${res.status}`);
+    //     }
+    //     return res.json();
+    //   })
+    //   .then((data) => {
+    //     setUser(data);
+    //   })
+    //   .catch((err) => {
+    //     console.error("Failed to fetch user:", err);
+    //     setError("Failed to load user profile.");
+    //   }).finally(()=>{
+    //     setLoading(false);
+    //   });
+    // }, []);
+
+
+
+    useEffect(() => {
+  axiosClient.get("/user/me")
+    .then((res) => setUser(res.data)
+    
+  )
+    
+    .catch(() => setError("Failed to load user"))
+    .finally(() => setLoading(false));
+}, []);
+
     if (loading)
     return (
-      <div className="flex justify-center items-center h-64 text-gray-500">
+      <div className="flex justify-center items-center h-64 text-gray-500 ">
         Loading profile...
       </div>
     );
@@ -59,7 +69,7 @@ export default function UserProfile(){
     );
     return (
     <div
-      className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6 border border-gray-100"
+      className="max-w-xl ms-3 mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6  border-orange-500 "
       style={{ fontFamily: "sans-serif" }}
     >
       <div className="flex flex-col items-center">

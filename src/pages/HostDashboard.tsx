@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContaine
 import PropertyList from "../components/Property/PropertyList";
 import axiosClient from "../api/axiosClient";
 import SearchProperty from "../components/Property/SearchProperty";
+import DashboardWidget from "../reusable-components/reusable-widget";
 
 const HostDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const HostDashboard: React.FC = () => {
 
   const fetchProperties = async () => {
     try {
-      const res = await axiosClient.get("api/properties/host/my-properties");
+      const res = await axiosClient.get("properties/host/my-properties");
       setProperties(res.data);
     } catch (error) {
       console.error("Error fetching properties:", error);
@@ -54,6 +55,32 @@ const HostDashboard: React.FC = () => {
     name: p.name,
     price: parseFloat(p.pricepernight),
   }));
+  const widgetItems = [
+  {
+    title: "Total Properties",
+    value: loading ? "..." : total,
+    color: "text-blue-600",
+  },
+  {
+    title: "Average Price/Night",
+    value: loading ? "..." : `KES ${avgPrice}`,
+    color: "text-green-600",
+  },
+  {
+    title: "Most Recent Property",
+    value: loading ? "..." : properties[0]?.name || "—",
+    color: "text-gray-700",
+  },
+  {
+    title: "Last Updated",
+    value: loading
+      ? "..."
+      : properties[0]?.updated_at
+      ? new Date(properties[0].updated_at).toLocaleDateString()
+      : "—",
+    color: "text-gray-700",
+  },
+];
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
@@ -84,47 +111,8 @@ const HostDashboard: React.FC = () => {
         <SearchProperty />
       </section>
 
-      {/* ================= WIDGETS ================= */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-        {[
-          {
-            title: "Total Properties",
-            value: loading ? "..." : total,
-            color: "text-blue-600",
-          },
-          {
-            title: "Average Price/Night",
-            value: loading ? "..." : `KES ${avgPrice}`,
-            color: "text-green-600",
-          },
-          {
-            title: "Most Recent Property",
-            value: loading ? "..." : properties[0]?.name || "—",
-            color: "text-gray-700",
-          },
-          {
-            title: "Last Updated",
-            value: loading
-              ? "..."
-              : properties[0]?.updated_at
-              ? new Date(properties[0].updated_at).toLocaleDateString()
-              : "—",
-            color: "text-gray-700",
-          },
-        ].map((card, idx) => (
-          <div
-            key={idx}
-            className="bg-white p-6 rounded-2xl shadow-md flex flex-col items-center hover:shadow-lg hover:scale-105 transition-all duration-300"
-          >
-            <span className="text-gray-500 text-sm">{card.title}</span>
-            <span className={`text-3xl font-bold mt-2 ${card.color}`}>
-              {card.value}
-            </span>
-          </div>
-        ))}
-      </section>
+      <DashboardWidget items={widgetItems} />
 
-      {/* ================= GRAPHS ================= */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
         {/* Earnings Over Time */}
         <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
