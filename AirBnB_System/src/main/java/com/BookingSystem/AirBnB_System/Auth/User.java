@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -58,5 +59,9 @@ public class User {
     }
     @Column(name="active", nullable=false)
     private boolean active = true;
+    @Column(length=6)
+    private String otpCode;
+    private LocalDateTime otpExpiry;
+    private Boolean otpVerified = false;
 
 }

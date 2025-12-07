@@ -22,47 +22,68 @@ public class ProfileController {
     }
 
     // Get current logged in user profile
+//    @PreAuthorize("isAuthenticated()")
+//    @GetMapping("/me")
+//    public ResponseEntity<UserDTO> me(@AuthenticationPrincipal UserDetails principal) {
+//        var user = repo.findByEmail(principal.getUsername()).orElseThrow();
+//        return ResponseEntity.ok(
+//                new UserDTO(
+//                        user.getUserId(),
+//                        user.getFirstName(),
+//                        user.getLastName(),
+//                        user.getEmail(),
+//                        user.getPhoneNumber(),
+//                        user.getRole().name(),
+//                        user.getProfilePhotoPath(),
+//                        user.getCreatedAt(),
+//                        user.isActive()
+//                )
+//        );
+//    }
+//
+//    // Update logged in user profile
+//    @PreAuthorize("isAuthenticated()")
+//    @PutMapping(value = "/me", consumes = { "multipart/form-data" })
+//    public ResponseEntity<?> updateProfile(
+//            @AuthenticationPrincipal UserDetails principal,
+//            @RequestParam(required = false) String firstName,
+//            @RequestParam(required = false) String lastName,
+//            @RequestParam(required = false) String phoneNumber,
+//            @RequestPart(required = false) MultipartFile photo
+//    ) throws Exception {
+//
+//        var user = repo.findByEmail(principal.getUsername()).orElseThrow();
+//        userService.updateProfile(
+//                user.getUserId(),
+//                firstName,
+//                lastName,
+//                phoneNumber,
+//                photo
+//        );
+//
+//        return ResponseEntity.ok("Profile updated successfully");
+//    }
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> me(@AuthenticationPrincipal UserDetails principal) {
-        var user = repo.findByEmail(principal.getUsername()).orElseThrow();
-        return ResponseEntity.ok(
-                new UserDTO(
-                        user.getUserId(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getEmail(),
-                        user.getPhoneNumber(),
-                        user.getRole().name(),
-                        user.getProfilePhotoPath(),
-                        user.getCreatedAt(),
-                        user.isActive()
-                )
-        );
+    public ResponseEntity<UserDTO> me(@AuthenticationPrincipal UserDetails principal){
+        UserDTO user = userService.getProfile(principal.getUsername());
+        return ResponseEntity.ok(user);
     }
-
-    // Update logged in user profile
     @PreAuthorize("isAuthenticated()")
-    @PutMapping(value = "/me", consumes = { "multipart/form-data" })
-    public ResponseEntity<?> updateProfile(
+    @PutMapping(value="/me",consumes = {"multipart/form-data"})
+    public ResponseEntity<UserDTO> updateProfile(
             @AuthenticationPrincipal UserDetails principal,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String phoneNumber,
+            @RequestPart(required = false) UpdateProfileRequest request,
             @RequestPart(required = false) MultipartFile photo
     ) throws Exception {
-
-        var user = repo.findByEmail(principal.getUsername()).orElseThrow();
-        userService.updateProfile(
-                user.getUserId(),
-                firstName,
-                lastName,
-                phoneNumber,
+        UserDTO updated = userService.updateProfile(
+                principal.getUsername(),
+                request,
                 photo
         );
-
-        return ResponseEntity.ok("Profile updated successfully");
+        return ResponseEntity.ok(updated);
     }
+
 
 
 }

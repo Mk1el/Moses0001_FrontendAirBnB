@@ -27,6 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         System.out.println("[CustomUserDetailsService] Role: " + user.getRole());
         System.out.println("[CustomUserDetailsService] Granted Authorities: " + authorities);
 
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),

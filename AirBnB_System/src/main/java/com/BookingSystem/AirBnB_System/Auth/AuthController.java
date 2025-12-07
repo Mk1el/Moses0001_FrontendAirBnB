@@ -4,6 +4,7 @@ import com.BookingSystem.AirBnB_System.Auth.security.JwtUtil;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory; // ✅ This one was missing
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,35 +68,52 @@ public class AuthController {
     public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> request) {
         String idTokenString = request.get("token");
 
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
-                .setAudience(Collections.singletonList("1054745946305-kntvibdrhnc1iann41s5094te898v8l8.apps.googleusercontent.com"))
-                .build();
-
         try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(),
+                    GsonFactory.getDefaultInstance()
+            )
+                    .setAudience(Collections.singletonList(
+                            "1054745946305-kntvibdrhnc1iann41s5094te898v8l8.apps.googleusercontent.com"
+                    ))
+                    .build();
+
             GoogleIdToken idToken = verifier.verify(idTokenString);
-            if (idToken != null) {
-                GoogleIdToken.Payload payload = idToken.getPayload();
 
-                String email = payload.getEmail();
-                String name = (String) payload.get("name");
-                String pictureUrl = (String) payload.get("picture");
-
-                User user = userService.findOrCreateUser(email, name, pictureUrl);
-
-                String jwt = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getRole().name());
-
-
-                return ResponseEntity.ok(Map.of(
-                        "token", jwt,
-                        "user", user
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid ID token");
+            if (idToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid Google ID token");
             }
+
+            GoogleIdToken.Payload payload = idToken.getPayload();
+
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            String picture = (String) payload.get("picture");
+
+            // Create or return existing user
+            User user = userService.findOrCreateUser(email, name, picture);
+
+            // Generate your own JWT
+            String jwt = jwtUtil.generateToken(
+                    user.getUserId(),
+                    user.getEmail(),
+                    user.getRole().name()
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "token", jwt,
+                    "email", user.getEmail(),
+                    "name", user.getFirstName() + " " + user.getLastName(),
+                    "picture", picture
+            ));
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error verifying token: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error verifying Google token: " + e.getMessage());
         }
     }
+
 
 
     @GetMapping("/oath2/success")
