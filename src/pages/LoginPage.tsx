@@ -71,7 +71,7 @@ export default function Login() {
       const token = credentialResponse.credential;
       console.log("Google token:", token);
 
-      const res = await axios.post("/auth/google-login", {
+      const res = await axiosClient.post("/auth/google-login", {
         token, 
       });
       console.log("Google login backend response:", res.data);

@@ -38,7 +38,7 @@ export default function ReusableTable<T>({
   data,
   columns,
   rowsPerPageOptions = [5, 8, 12, 24],
-  initialRowsPerPage = 8,
+  initialRowsPerPage = 5,
   loading = false,
   noDataMessage = "No data found.",
   dense = false,
@@ -47,10 +47,11 @@ export default function ReusableTable<T>({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
+
+  const handleChangeRowsPerPage = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
@@ -61,14 +62,36 @@ export default function ReusableTable<T>({
   }, [data, page, rowsPerPage]);
 
   return (
-    <Paper elevation={2}>
-      <TableContainer>
+    <Paper elevation={2} sx={{ width: "100%", overflow: "hidden" }}>
+      {/* RESPONSIVE HORIZONTAL SCROLL FOR SMALL SCREENS */}
+      <TableContainer
+        sx={{
+          overflowX: "auto",
+          "@media (max-width: 600px)": {
+            maxWidth: "100vw",
+          },
+        }}
+      >
         <Table size={dense ? "small" : "medium"}>
           <TableHead>
-            <TableRow>
+            <TableRow
+              sx={{
+                backgroundColor: "#1e293b", // slate-800
+              }}
+            >
               {columns.map((col, idx) => (
-                <TableCell key={idx} align={col.align || "left"} style={{ width: col.width }}>
-                  <Typography variant="subtitle2">{col.label}</Typography>
+                <TableCell
+                  key={idx}
+                  align={col.align || "left"}
+                  style={{ width: col.width }}
+                  sx={{
+                    color: "white",
+                    fontWeight: 700,
+                    fontSize: "14px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {col.label}
                 </TableCell>
               ))}
             </TableRow>
@@ -86,15 +109,16 @@ export default function ReusableTable<T>({
                 <TableRow
                   key={rIdx}
                   hover
-                  sx={{ cursor: onRowClick ? "pointer" : "default" }}
+                  sx={{
+                    cursor: onRowClick ? "pointer" : "default",
+                    transition: "all 0.2s",
+                    "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                  }}
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {columns.map((col, cIdx) => (
                     <TableCell key={cIdx} align={col.align || "left"}>
-                      {col.render ? (
-                        col.render(row)
-                      ) : (
-                        // Basic accessor (row as any)[col.key]
+                      {col.render ? col.render(row) : (
                         <span>{(row as any)[col.key]}</span>
                       )}
                     </TableCell>
