@@ -8,6 +8,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { saveAuthData } from "../utils/tokenStorage";
 import axiosClient from "../api/axiosClient";
 
+import { Link as RouterLink } from "react-router-dom";
+
 interface LoginForm {
   email: string;
   password: string;
@@ -90,7 +92,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 border rounded">
       <Toaster />
       <div className="p-8 bg-white rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
@@ -130,11 +132,16 @@ export default function Login() {
           />
         </div>
         <p className="text-center mt-4">
-  New user?{" "}
-  <a href="/register" className="text-blue-600 font-semibold hover:underline">
-    Create an Account
-  </a>
-</p>
+          <RouterLink to="/forgot-password" className="text-orange-400 font-semibold hover:underline">
+            Forgot password?
+          </RouterLink>
+        </p>
+        <p className="text-center mt-4">
+           New user?{" "}
+            <a href="/register" className="text-blue-600 font-semibold hover:underline">
+              Create an Account
+            </a>
+        </p>
 
       </div>
     </div>

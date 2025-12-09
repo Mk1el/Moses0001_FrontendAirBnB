@@ -15,6 +15,9 @@ import BookingsPage from "./components/Booking/BookingPage";
 import ReviewsPage from "./components/Reviews/ReviewsPage";
 import axiosClient from "./api/axiosClient";
 import UserManagement from "./components/admin/user-management";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyOtp from "./pages/VerifyOtp";
+import ResetPassword from "./pages/ResetPassword";
 
 interface Role {
   userId: string;
@@ -47,7 +50,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           element={
             <ProtectedRoute allowedRoles={["GUEST", "HOST", "ADMIN"]}>
