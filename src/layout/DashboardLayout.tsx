@@ -1,10 +1,10 @@
-// src/layout/DashboardLayout.tsx
+
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Header from '../pages/Header'; // Assuming this is your top bar
-import Sidebar from '../routes/Sidebar'; //Import the Sidebar
+import Header from '../pages/Header'; 
+import Sidebar from '../routes/Sidebar'; 
 import UserProfile from './UserProfile';
-// Define the User type for props
+
 interface User {
   role: "GUEST" | "HOST" | "ADMIN";
   firstName: string;
@@ -17,7 +17,7 @@ const DashboardLayout: React.FC<{ user: User | null }> = ({ user }) => {
       <Header />
 
       <div className="flex">
-        {/* ✅ Render the Sidebar and pass the role prop */}
+        {/* Render the Sidebar and pass the role prop */}
         <Sidebar/>
 
         {/* The main content area will now take up the remaining space */}

@@ -3,6 +3,7 @@ import axiosClient from "../../api/axiosClient";
 import { toast } from "react-hot-toast";
 import ReusableTable, { TableColumn } from "../../reusable-components/reusable-table";
 import ReusableForm, { FormField } from "../../reusable-components/reusable-form";
+import { getAuthRole } from "../../utils/tokenStorage";
 
 type UserDTO = {
     userId: string;
@@ -22,6 +23,7 @@ export default function UserManagement() {
     const [search, setSearch] = useState("");
     const [openForm, setOpenForm] = useState(false);
     const [editing, setEditing] = useState<UserDTO | null>(null);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -67,6 +69,7 @@ export default function UserManagement() {
         );
     }, [users, search]);
 
+
     const columns: TableColumn<UserDTO>[] = [
         {
             key: "profilePhotoPath",
@@ -89,11 +92,10 @@ export default function UserManagement() {
             label: "Status",
             render: (row) => (
                 <span
-                    className={`px-2 py-1 rounded text-sm font-semibold ${
-                        row.active
+                    className={`px-2 py-1 rounded text-sm font-semibold ${row.active
                             ? "bg-green-100 text-green-700"
                             : "bg-gray-200 text-gray-700"
-                    }`}
+                        }`}
                 >
                     {row.active ? "Active" : "Inactive"}
                 </span>
@@ -106,14 +108,13 @@ export default function UserManagement() {
                 <div className="flex flex-col sm:flex-row gap-2">
                     <button
                         onClick={() => toggleUserStatus(row)}
-                        className={`px-3 py-1 text-white rounded text-sm ${
-                            row.active ? "bg-red-500" : "bg-green-600"
-                        }`}
+                        className={`px-3 py-1 text-white rounded text-sm ${row.active ? "bg-red-500" : "bg-green-600"
+                            }`}
                     >
                         {row.active ? "Deactivate" : "Activate"}
                     </button>
 
-                    <button
+                    {/* <button
                         onClick={() => {
                             setEditing(row);
                             setOpenForm(true);
@@ -121,22 +122,22 @@ export default function UserManagement() {
                         className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
                     >
                         Edit
-                    </button>
+                    </button> */}
                 </div>
             ),
         },
     ];
 
     const userFields: FormField[] = [
-        { name: "firstName", label: "First Name", required: true },
-        { name: "lastName", label: "Last Name", required: true },
-        { name: "email", label: "Email", type: "email", required: true },
-        { name: "phoneNumber", label: "Phone" },
+        { name: "firstName", label: "First Name", required: true,validate: (v: string) =>/^[A-Za-z]{2,30}$/.test(v) || "Enter a valid first name (letters only).", },
+        { name: "lastName", label: "Last Name", required: true, validate: (v: string) => /^[A-Za-z]{2,30}$/.test(v) || "Enter a valid last name (letters only).",},
+        { name: "email", label: "Email", type: "email", required: true, validate: (v: string) => /\S+@\S+\.\S+/.test(v) || "Enter a valid email address.",},
+        { name: "phoneNumber", label: "Phone",required: true, validate: (v: string) => /^(07\d{8}|01\d{8}|\+2547\d{8})$/.test(v) ||"Enter a valid phone: 07XXXXXXXX, 01XXXXXXXX or +2547XXXXXXX",},
         {
             name: "role",
             label: "Role",
             type: "select",
-            options: ["ADMIN", "HOST", "GUEST"],
+            options: ["ADMIN"],
             required: true,
         },
     ];
@@ -155,6 +156,18 @@ export default function UserManagement() {
                     onChange={(e) => setSearch(e.target.value)}
                 />
             </div>
+            <div className="flex justify-between items-center">
+                <button
+                    onClick={() => {
+                        setEditing(null);
+                        setOpenForm(true);
+                    }}
+                    className="bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
+                >
+                    + Add Admin
+                </button>
+            </div>
+
 
             {/* Table Wrapper */}
             <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
@@ -173,8 +186,11 @@ export default function UserManagement() {
                         <ReusableForm
                             fields={userFields}
                             data={editing}
-                            endpoint={`/api/admin/users/${editing?.userId}`}
-                            method="PUT"
+                            endpoint={editing ? `/admin/users/${editing.userId}` : `/admin/users`}
+                            method={editing ? "PUT" : "POST"}
+                            transformData={(form) =>({
+                                ...form, creatorRole: getAuthRole(),
+                            })}
                             onSuccess={() => fetchUsers()}
                             onClose={() => {
                                 setOpenForm(false);

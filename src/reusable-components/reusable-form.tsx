@@ -6,8 +6,10 @@ export interface FormField {
   label: string;
   type?: "text" | "number" | "textarea" | "date" | "email" | "select";
   required?: boolean;
+  validate?: ((value: string) => true | string) | undefined;
   placeholder?: string;
   options?: string[];
+  transformData?: (data: any) => any;
 }
 
 interface ReusableFormProps<T> {
@@ -17,6 +19,8 @@ interface ReusableFormProps<T> {
   method?: "POST" | "PUT";
   onSuccess: () => void;
   onClose?: () => void;
+  transformData?: (data: any) => any;
+
 }
 
 export default function ReusableForm<T>({
@@ -26,6 +30,7 @@ export default function ReusableForm<T>({
   method = "POST",
   onSuccess,
   onClose,
+  transformData,
 }: ReusableFormProps<T>) {
   const [form, setForm] = useState<any>(
     fields.reduce(
@@ -43,6 +48,7 @@ export default function ReusableForm<T>({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = transformData ? transformData(form) : form;
       const response =
         method === "POST"
           ? await axiosClient.post(endpoint, form)

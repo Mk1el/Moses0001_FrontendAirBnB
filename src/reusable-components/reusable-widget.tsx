@@ -19,32 +19,46 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ items, className }) =
     <Box
       className={className}
       display="grid"
-      gridTemplateColumns={{ xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }}
       gap={3}
-      mb={4} // spacing from charts below
+      mb={4}
+      // Responsive layout
+      sx={{
+        gridTemplateColumns: {
+          xs: "1fr",              
+          sm: "repeat(2, 1fr)",   
+          md: "repeat(3, 1fr)",   
+          lg: "repeat(4, 1fr)",   
+        },
+        width: "100%",
+      }}
     >
       {items.map((item, idx) => (
         <Box
           key={idx}
           sx={{
             bgcolor: "white",
-            p: 3,
+            p: { xs: 2, sm: 3 }, 
             borderRadius: 3,
-            border: "4px solid orange", // thick orange border
+            border: "4px solid orange",
             boxShadow: 3,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "space-between", // utilizes vertical space
-            minHeight: 180, // ensures each widget has enough height
-            transition: "0.3s",
-            "&:hover": { boxShadow: 6, transform: "scale(1.03)" },
+            justifyContent: "space-between",
+            minHeight: { xs: 150, sm: 180 },
+            textAlign: "center",
+            transition: "0.3s ease",
+            "&:hover": {
+              boxShadow: 6,
+              transform: "translateY(-4px)",
+            },
           }}
         >
+          {/* Icon */}
           {item.icon && (
             <Box
               sx={{
-                mb: 2,
+                mb: 1.5,
                 width: 56,
                 height: 56,
                 borderRadius: "50%",
@@ -59,25 +73,27 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ items, className }) =
             </Box>
           )}
 
-          <Typography variant="subtitle2" color="text.secondary" sx={{ textAlign: "center", mb: 0.5 }}>
+          {/* Title */}
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
             {item.title}
           </Typography>
 
+          {/* Value */}
           <Typography
             variant="h4"
             fontWeight={700}
             color={item.color || "text.primary"}
-            sx={{ textAlign: "center", mb: 1 }}
+            sx={{
+              mb: 1,
+              fontSize: { xs: "1.75rem", sm: "2rem" }, 
+            }}
           >
             {item.value}
           </Typography>
 
+          {/* Subtitle */}
           {item.subtitle && (
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ textAlign: "center" }}
-            >
+            <Typography variant="caption" color="text.secondary">
               {item.subtitle}
             </Typography>
           )}
