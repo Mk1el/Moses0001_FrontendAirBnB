@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -101,6 +103,15 @@ public class PropertyController {
     {
         return ResponseEntity.ok(service.searchProperties(location, price, minPrice, maxPrice, guests, description));
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','HOST','GUEST')")
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailable(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+        return ResponseEntity.ok(service.getAvailable(startDate, endDate));
+            }
+
     // ADMIN
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/admin/all")
@@ -108,4 +119,5 @@ public class PropertyController {
         return ResponseEntity.ok(service.adminAll());
     }
 }
+
 

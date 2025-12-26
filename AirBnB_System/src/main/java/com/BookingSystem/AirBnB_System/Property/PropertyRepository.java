@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,5 +28,16 @@ public interface PropertyRepository extends JpaRepository<Property, UUID> {
             @Param("guests") Integer guests,
             @Param("description") String description
     );
+    @Query("""
+    SELECT p FROM Property p 
+    WHERE p.propertyId NOT IN (
+        SELECT b.property.propertyId FROM Booking b
+        WHERE b.status IN ('AVAILABLE', 'BOOKED')
+        AND b.startDate <= :endDate
+        AND b.endDate >= :startDate
+    )
+""")
+    List<Property> findAvailableProperties(LocalDate startDate, LocalDate endDate);
+
 
 }

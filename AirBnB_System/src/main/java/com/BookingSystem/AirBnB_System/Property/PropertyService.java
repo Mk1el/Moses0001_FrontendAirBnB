@@ -4,6 +4,7 @@ import com.BookingSystem.AirBnB_System.Auth.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
@@ -122,5 +123,9 @@ public class PropertyService {
                 .stream()
                 .map(this::toDTO)
                 .toList();
+    }
+    public List<PropertyDTO> getAvailable(LocalDate start, LocalDate end){
+        return repo.findAvailableProperties(start, end)
+                .stream().map(this::toDTO).toList();
     }
 }

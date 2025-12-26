@@ -8,6 +8,7 @@ import com.BookingSystem.AirBnB_System.Property.Property;
 import com.BookingSystem.AirBnB_System.Property.PropertyRepository;
 import com.BookingSystem.AirBnB_System.Auth.User;
 import com.BookingSystem.AirBnB_System.Auth.UserRepository;
+import lombok.Data;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,6 +194,33 @@ public class BookingService {
             throw new IllegalArgumentException("Booking not found");
         bookingRepo.deleteById(bookingId);
     }
+    public static class PriceCalculationDTO{
+        private long nights;
+        private BigDecimal pricePerNight;
+        private BigDecimal totalPrice;
+
+        public PriceCalculationDTO(long nights, BigDecimal pricePerNight, BigDecimal totalPrice){
+            this.nights = nights;
+            this.pricePerNight = pricePerNight;
+            this.totalPrice = totalPrice;
+
+        }
+        public long getNights() { return nights; }
+        public BigDecimal getPricePerNight() { return pricePerNight; }
+        public BigDecimal getTotalPrice() { return totalPrice; }
+    }
+    public PriceCalculationDTO calculatePrice(UUID propertyId, LocalDate start, LocalDate end) {
+        if (start == null || end == null) throw new IllegalArgumentException("Start and end dates are required");
+        if (!end.isAfter(start)) throw new IllegalArgumentException("End date must be after start date");
+
+        Property property = propertyRepo.findById(propertyId)
+                .orElseThrow(() -> new IllegalArgumentException("Property not found"));
+
+        long nights = ChronoUnit.DAYS.between(start, end);
+        BigDecimal total = property.getPricePerNight().multiply(BigDecimal.valueOf(nights));
+
+        return new PriceCalculationDTO(nights, property.getPricePerNight(), total);
+    }
 
     public BookingDTO toDTO(Booking b) {
         BookingDTO dto = new BookingDTO();
@@ -201,6 +229,13 @@ public class BookingService {
         dto.setUserId(b.getUser().getUserId());
         dto.setStartDate(b.getStartDate());
         dto.setEndDate(b.getEndDate());
+//        dto.setTotalPrice(b.getTotalPrice());
+//        dto.setStatus(b.getStatus());
+//        dto.setCreatedAt(b.getCreatedAt());
+        long nights = ChronoUnit.DAYS.between(b.getStartDate(), b.getEndDate());
+        if(nights < 0) nights =0;
+        dto.setNights(nights);
+        dto.setPricePerNight(b.getProperty().getPricePerNight());
         dto.setTotalPrice(b.getTotalPrice());
         dto.setStatus(b.getStatus());
         dto.setCreatedAt(b.getCreatedAt());

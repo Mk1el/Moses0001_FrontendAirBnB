@@ -2,12 +2,16 @@ package com.BookingSystem.AirBnB_System.Booking;
 
 import com.BookingSystem.AirBnB_System.Auth.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -45,6 +49,20 @@ public class BookingController {
 
         return ResponseEntity.ok(bookingService.toDTO(booking));
     }
+    @PreAuthorize("hasAuthority('GUEST')")
+    @GetMapping("/calculate")
+    public ResponseEntity<?> calculatePrice(
+            @RequestParam UUID propertyId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ){
+        var dto = bookingService.calculatePrice(propertyId, start, end);
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("nights", dto.getNights());
+        resp.put("pricePerNight", dto.getPricePerNight());
+        resp.put("totalPrice", dto.getTotalPrice());
+        return ResponseEntity.ok(resp);
+    };
     @PreAuthorize("hasAuthority('GUEST')")
     @GetMapping("/me/paid")
     public ResponseEntity<?>myPaidBookings(@AuthenticationPrincipal UserDetails principal) {

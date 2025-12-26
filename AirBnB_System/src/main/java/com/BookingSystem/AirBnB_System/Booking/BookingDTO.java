@@ -24,4 +24,6 @@ public class BookingDTO {
     private BigDecimal totalPrice;
     private BookingStatus status;
     private Instant createdAt;
+    private long nights;
+    private BigDecimal pricePerNight;
 }
