@@ -119,8 +119,6 @@ export default function PropertyList() {
       <div className="overflow-x-auto bg-white shadow-md rounded-2xl">
         <ReusableTable data={properties} columns={columns} noDataMessage="No properties found." />;
       </div>
-
-      {/* ===================== DIALOG (MODAL) ===================== */}
       {open && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white w-full max-w-lg p-6 rounded-2xl shadow-lg relative animate-fadeIn">
@@ -136,7 +134,7 @@ export default function PropertyList() {
             <ReusableForm
               fields={fields}
               data={editing}
-              endpoint={editing ? `/properties/${editing.property_id}` : "/properties"}
+              endpoint={editing ? `/properties/${editing.id}` : "/properties"}
               method={editing ? "PUT" : "POST"}
               onSuccess={() => {
                 fetchProperties();

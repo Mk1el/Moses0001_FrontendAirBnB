@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axiosClient from "../api/axiosClient";
 import toast from "react-hot-toast";
 import SearchProperty from "../components/Property/SearchProperty";
+import PaymentForm from "../components/Payment/PaymentForm";
 
 interface Property {
   propertyId: string;
@@ -15,6 +16,7 @@ interface Property {
   createdAt: string;
   updatedAt: string;
   imageUrl?: string;
+  isBooked?: boolean;
 }
 
 export default function PropertyDetails() {
@@ -24,9 +26,13 @@ export default function PropertyDetails() {
   const [endDate, setEndDate] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const modalRef = useRef<HTMLDivElement | null>(null);
-
+  const [nights, setNights] = useState<number | null>(null);
+  const [pricePerNightCalculated, setPricePerNightCalculated] = useState<number | null>(null);
+  const [totalPrice, setTotalPrice] = useState<number | null>(null);
+  const [calculating, setCalculating] = useState(false);
+  const [showAfterBooking, setShowAfterBooking]=useState<{bookingId: string|null; totalAmount: number|null}>({bookingId: null, totalAmount: null})
   const todayISO = new Date().toISOString().split("T")[0];
-
+  const [showPaymentForm, setShowPaymentForm]=useState(false);
   // fetch properties
   const fetchProperties = async () => {
     setLoading(true);
@@ -48,7 +54,7 @@ export default function PropertyDetails() {
 
   useEffect(() => {
     fetchProperties();
-  }, []);
+  },[]);
 
   // disable background scroll while modal open and add ESC/outside click support
   useEffect(() => {
@@ -76,6 +82,63 @@ export default function PropertyDetails() {
       setSelectedProperty(null);
     }
   };
+  const calculatePrice = async () => {
+    if(!selectedProperty || !startDate || !endDate) return;
+  
+  if(new Date(endDate) <= new Date (startDate)){
+    setNights(null);
+    setTotalPrice(null);
+    return;
+  }
+  try{
+    setCalculating(true);
+    const response = await axiosClient.get("/bookings/calculate", {
+      params:{
+        propertyId: selectedProperty?.propertyId,
+        start: startDate,
+        end: endDate,
+      },
+    });
+    setNights(response.data.nights);
+    setPricePerNightCalculated(response.data.pricePerNight);
+    setTotalPrice(response.data.totalPrice);
+  } catch (err) {
+    console.error("Calculate price error:", err);
+    toast.error("Failed to calculate price");
+  } finally {
+    setCalculating(false);
+  }
+  };
+  useEffect(()=>{
+    if(selectedProperty && startDate && endDate){
+      calculatePrice()
+    }
+  },[startDate, endDate, selectedProperty]);
+
+  const checkBookedProperties = async () => {
+  try {
+    const response = await axiosClient.get("/properties/available", {
+      params: { startDate: todayISO, endDate: todayISO },
+    });
+
+    const availablePropertyIds = response.data.map((p: Property) => p.propertyId);
+
+    setProperties((prev) =>
+      prev.map((p) => ({
+        ...p,
+        isBooked: !availablePropertyIds.includes(p.propertyId), // true if booked
+      }))
+    );
+  } catch (err) {
+    console.error("Error checking booked properties:", err);
+    toast.error("Failed to check bookings");
+  }
+};
+useEffect(()=>{
+  fetchProperties().then(()=>{
+    checkBookedProperties();
+  })
+},[]);
 
   // format currency with fallback
   const formatCurrency = (amount: number, currency?: string) => {
@@ -92,44 +155,34 @@ export default function PropertyDetails() {
   };
 
   // handle booking
-  const handleBooking = async () => {
-    if (!selectedProperty) {
-      toast.error("Please select a property");
-      return;
-    }
-    if (!startDate || !endDate) {
-      toast.error("Please select both start and end dates");
-      return;
-    }
+  const handleBooking = async ()=>{
+    if(!selectedProperty) return toast.error("Please select a property!");
+    if(selectedProperty.isBooked) return toast.error("This Property is already booked");
+    if (!startDate || !endDate) return toast.error("Please select both start and end dates");
+    if (!totalPrice || nights === null) return toast.error("Please wait for price calculation");
 
-    const msPerDay = 1000 * 60 * 60 * 24;
-    const diffMs = new Date(endDate).getTime() - new Date(startDate).getTime();
-    const totalDays = Math.ceil(diffMs / msPerDay);
-
-    if (totalDays <= 0) {
-      toast.error("End date must be after start date");
-      return;
-    }
-
-    const totalAmount = totalDays * selectedProperty.pricePerNight;
-
-    try {
+    try{
       const payload = {
         propertyId: selectedProperty.propertyId,
         startDate,
-        endDate,
-        totalAmount,
+        endDate
       };
-
-      await axiosClient.post("/api/bookings/create", payload);
-      toast.success("Booking successful! Redirecting to payment...");
-      // TODO: Redirect to payment page here
+      const res = await axiosClient.post("/bookings/create",payload);
+      const created = res.data;
+      toast.success("Booking successful! Redirecting to payment");
+      setShowAfterBooking({
+        bookingId: created.bookingId,
+        totalAmount: created.totalPrice,
+      });
       setSelectedProperty(null);
-    } catch (err) {
+
+      //TO DO(Redirect to payment page)
+    }catch(err:any){
       console.error("booking error:", err);
       toast.error("Booking failed");
-    }
-  };
+
+    }finally{}
+  }
 
   const openModalFor = (prop: Property) => {
     setSelectedProperty(prop);
@@ -186,18 +239,32 @@ export default function PropertyDetails() {
               className="bg-white rounded-2xl shadow-md hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden"
             >
               <div className="relative">
-                <img
-                  src={prop.imageUrl || "/placeholder.jpg"}
+                {/* <img
+                  src={prop.imageUrl || "/logo192.jpg"}
                   alt={prop.name}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg";
                   }}
                   className="w-full h-48 sm:h-56 object-cover"
-                />
+                /> */}
                 <span className="absolute left-3 top-3 bg-white/90 text-sm font-semibold text-green-700 px-3 py-1 rounded-full shadow">
                   {formatCurrency(prop.pricePerNight, prop.currency)} / night
                 </span>
               </div>
+              <div className="mt-auto">
+  <button
+    onClick={() => openModalFor(prop)}
+    disabled={prop.isBooked}
+    className={`w-full py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200
+      ${prop.isBooked
+        ? "bg-gray-300 text-gray-700 cursor-not-allowed"
+        : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+  >
+    {prop.isBooked ? "Already Booked" : "Book Now"}
+  </button>
+</div>
+
 
               <div className="p-4 flex flex-col flex-grow">
                 <div className="mb-3">
@@ -240,14 +307,14 @@ export default function PropertyDetails() {
             <div className="md:flex">
               {/* Left: Image */}
               <div className="md:w-1/2">
-                <img
+                {/* <img
                   src={selectedProperty.imageUrl || "/placeholder.jpg"}
                   alt={selectedProperty.name}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/placeholder.jpg";
                   }}
                   className="w-full h-64 md:h-full object-cover rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none"
-                />
+                /> */}
               </div>
 
               {/* Right: Details */}
@@ -268,6 +335,13 @@ export default function PropertyDetails() {
                     ✕
                   </button>
                 </div>
+                {showPaymentForm && showAfterBooking.bookingId && showAfterBooking.totalAmount && (
+                <PaymentForm
+                bookingId={showAfterBooking.bookingId}
+                totalAmount={showAfterBooking.totalAmount}
+                onClose={() => setShowPaymentForm(false)}
+                 />
+                )}
 
                 <p className="text-gray-600 mt-4 flex-1">{selectedProperty.description}</p>
 
@@ -300,6 +374,20 @@ export default function PropertyDetails() {
                     className="border w-full p-2 rounded-lg focus:ring-2 focus:ring-green-600 outline-none transition"
                   />
 
+                  {calculating &&(
+                    <p className="text-sm text-gray-500 mt-3">Calculating your total price ...</p>
+                  )}
+                  {!calculating && nights !== null && totalPrice !== null && (
+                    <div className="mt-4 bg-green-50 border border-green-200 p-3 rounded-lg">
+                      <p className="text-green-800 font-medium">
+                        {nights} night(s) × {formatCurrency(pricePerNightCalculated || 0)} =
+                      </p>
+                      <p className="text-2xl font-bold text-green-700 mt-1">
+                         {formatCurrency(totalPrice)}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex gap-3 mt-4">
                     <button
                       onClick={handleBooking}
@@ -320,6 +408,40 @@ export default function PropertyDetails() {
           </div>
         </div>
       )}
+      {showAfterBooking.bookingId && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md text-center">
+      <h2 className="text-xl font-bold text-green-700 mb-3">Booking Successful</h2>
+      <p className="text-gray-600 mb-4">
+        Would you like to complete your payment now?
+      </p>
+
+      <div className="flex gap-3 mt-6">
+        
+        <button
+          className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+          onClick={() => {
+            setShowPaymentForm(true);
+          }}
+        >
+          Pay Now
+        </button>
+
+        <button
+          className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
+          onClick={() => {
+            setShowAfterBooking({ bookingId: null, totalAmount: null });
+            window.location.href = "/guest/bookings";
+          }}
+        >
+          Pay Later
+        </button>
+      </div>
     </div>
+  </div>
+)}
+
+    </div>
+    
   );
 }

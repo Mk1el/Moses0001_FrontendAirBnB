@@ -23,7 +23,7 @@ export default function PropertyForm({onSuccess, editProperty}: PropertyFormProp
     console.log("Submitting property form:", form);
 
     const url = editProperty
-      ? `/api/properties/${editProperty.property_id}`
+      ? `/api/properties/${editProperty.id}`
       : "/api/properties";
 
     console.log("POST URL:", url);

@@ -38,14 +38,14 @@ const BookingsPage: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
+  const [searchQuery, setSearchQuery] = useState("");
 
   const role = localStorage.getItem("role");
 
   const columns: TableColumn<Booking>[] = [
-    { key: "bookingId", label: "Booking ID" },
+    // { key: "bookingId", label: "Booking ID" },
     { key: "propertyName", label: "Property" },
-    { key: "userId", label: "User ID" },
+    // { key: "userId", label: "User ID" },
     { key: "startDate", label: "Start Date" },
     { key: "endDate", label: "End Date" },
     { key: "totalPrice", label: "Total Price", render: (row) => `KSh ${row.totalPrice}` },
@@ -95,12 +95,21 @@ const BookingsPage: React.FC = () => {
       ),
     },
   ];
-  const bookingFields: FormField[] = [
-  { name: "propertyId", label: "Property ID", required: true },
-  { name: "startDate", label: "Start Date", type: "date", required: true },
-  { name: "endDate", label: "End Date", type: "date", required: true },
-];
-
+//   const bookingFields: FormField[] = [
+//   { name: "propertyId", label: "Property ID", required: true },
+//   { name: "startDate", label: "Start Date", type: "date", required: true },
+//   { name: "endDate", label: "End Date", type: "date", required: true },
+// ];
+  const filteredBookings = bookings.filter((booking)=>{
+    const query = searchQuery.toLowerCase();
+    return (
+      booking.propertyName.toLowerCase().includes(query) ||
+      booking.status.toLowerCase().includes(query) ||
+      booking.startDate.includes(query) ||
+      booking.endDate.includes(query) ||
+      booking.totalPrice.toString().includes(query)
+    )
+  })
   useEffect(() => {
     fetchBookings();
   }, []);
@@ -122,7 +131,8 @@ const BookingsPage: React.FC = () => {
   };
 
   const cancelBooking = async (id: string) => {
-    if (!window.confirm("Cancel this booking?")) return;
+    // if (!window.confirm("Cancel this booking?")) return;
+    
     try {
       await axiosClient.post(`/api/bookings/${id}/cancel`);
       toast.success("Booking canceled!");
@@ -137,12 +147,26 @@ const BookingsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-gray-800">Booking Management</h1>
 
-        {role === "GUEST" && (
+        {/* {role === "GUEST" && (
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 w-full sm:w-auto rounded-md shadow-md transition"
             onClick={() => setOpen(true)}
           >
             + New Booking
+          </button>
+        )} */}
+
+
+      </div>
+      <div className="mb-4 flex flex-col sm:flex-row gap-3">
+        <input type="text" placeholder="Search bookings by property, status, date, or price..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        {searchQuery && (
+          <button onClick={() =>setSearchQuery("")}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            Clear
           </button>
         )}
       </div>
@@ -153,7 +177,7 @@ const BookingsPage: React.FC = () => {
       </div>
 
       {/* RESPONSIVE FORM MODAL */}
-      {open && (
+      {/* {open && (
         <ReusableForm
           fields={bookingFields}
           data={editing}
@@ -162,7 +186,7 @@ const BookingsPage: React.FC = () => {
           onSuccess={() => fetchBookings()}
           onClose={() => setOpen(false)}
         />
-      )}
+      )} */}
 
       {/* PAYMENT MODAL – RESPONSIVE */}
       {showPayment && selectedBooking && (

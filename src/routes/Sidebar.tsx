@@ -18,12 +18,17 @@ interface SidebarProps {
   userRole?: "GUEST" | "HOST" | "ADMIN" | null;
   isOpen?: boolean;
   onClose?: () => void;
+  className?:string;
 }
 
 export default function Sidebar({ userRole, isOpen = false, onClose }: SidebarProps) {
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
-  const [activeRole, setActiveRole] = useState<"GUEST" | "HOST" | "ADMIN" | null>(null);
+  const [activeRole, setActiveRole] = useState<"GUEST" | "HOST" | "ADMIN" | null>(() => {
+  const role = getAuthRole();
+  return role === "GUEST" || role === "HOST" || role === "ADMIN" ? role : null;
+});
+
 
   const derivedRole = useMemo(() => {
     const path = location.pathname.toLowerCase();
@@ -49,8 +54,9 @@ export default function Sidebar({ userRole, isOpen = false, onClose }: SidebarPr
   const shouldShow = (label: string) =>
     label.toLowerCase().includes(searchText.toLowerCase());
 
+  const roleToUse = derivedRole || activeRole;
   const renderMenu = () => {
-    switch (activeRole) {
+    switch (roleToUse) {
       case "GUEST":
         return (
           <>
@@ -113,7 +119,8 @@ export default function Sidebar({ userRole, isOpen = false, onClose }: SidebarPr
 
   return (
     <>
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r shadow-sm h-[calc(100vh-64px)] sticky top-[64px] p-4">
+      <aside className="hidden md:flex flex-col w-64 bg-white border-r shadow-sm h-[calc(100vh-64px)] sticky top-[64px] p-4 overflow-y-auto">
+
         <div className="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wide">
           House Management
         </div>

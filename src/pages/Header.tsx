@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { getUserFromToken } from "../utils/auth";
 import axiosClient from "../api/axiosClient";
+import Sidebar from "../routes/Sidebar";
 
 interface UserProfile {
   firstName: string;
@@ -64,7 +65,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm px-5 py-3 flex justify-between items-center sticky top-0 z-50">
+    <header className="bg-white shadow-sm px-5 py-3 flex justify-between items-center sticky top-0 z-40">
+
       {/* Logo */}
       <Link to={getDashboardLink()} className="text-2xl font-bold text-red-600 tracking-wide hover:opacity-80 transition">
         AirBnB Lite
@@ -109,31 +111,79 @@ export default function Header() {
       </button>
 
       {/* Mobile Sidebar */}
-      {showSidebar && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowSidebar(false)} />
+      {/* <Sidebar
+      isOpen={showSidebar}
+      onClose={() => setShowSidebar(false)}      
+     userRole={decodedUser?.role}
+     className="z-10"
+    /> */}
+    {showSidebar && (
+  <div className="fixed inset-0 z-50 flex">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/40"
+      onClick={() => setShowSidebar(false)}
+    />
+    {/* Sidebar panel */}
+    <div className="relative w-72 bg-white shadow-xl p-6 flex flex-col animate-slideIn">
+      {/* Close button */}
+      <button
+        className="self-end mb-4"
+        onClick={() => setShowSidebar(false)}
+      >
+        <X size={28} />
+      </button>
 
-          <div className="relative w-72 bg-white shadow-xl p-6 flex flex-col animate-slideIn">
-            <button className="absolute top-4 right-4" onClick={() => setShowSidebar(false)}>
-              <X size={26} />
-            </button>
+      {/* Menu items */}
+      <nav className="flex flex-col gap-4">
+        {menuItems().map((item, idx) => (
+          <Link
+            key={idx}
+            to={item.path}
+            onClick={() => setShowSidebar(false)} // close sidebar on click
+            className="text-gray-700 hover:text-red-600 transition"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
 
-            <div className="mt-12 flex flex-col gap-4 text-lg">
-              {menuItems().map((item, idx) => (
-                <Link key={idx} to={item.path} onClick={() => setShowSidebar(false)} className="hover:text-red-600 transition">
-                  {item.label}
-                </Link>
-              ))}
-              <Link to="/profile" onClick={() => setShowSidebar(false)} className="hover:text-red-600">
-                Profile
-              </Link>
-              <button onClick={logout} className="text-left text-red-600">
-                Logout
-              </button>
-            </div>
-          </div>
+      {/* Divider */}
+      <hr className="my-4" />
+
+      {/* Profile info */}
+      <div className="flex flex-col items-start gap-2">
+        <div className="flex items-center gap-3">
+          <img
+            src={profile?.profilePhotoPath || "https://via.placeholder.com/40"}
+            className="w-10 h-10 rounded-full"
+          />
+          <span className="font-medium">{profile?.firstName || "User"}</span>
         </div>
-      )}
+        <Link
+          to="/profile"
+          onClick={() => setShowSidebar(false)}
+          className="text-gray-700 hover:text-red-600 transition"
+        >
+          Profile
+        </Link>
+        <button
+          onClick={() => {
+            logout();
+            setShowSidebar(false);
+          }}
+          className="text-red-600 hover:opacity-80 transition text-left"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
     </header>
   );
 }

@@ -18,6 +18,7 @@ import UserManagement from "./components/admin/user-management";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyOtp from "./pages/VerifyOtp";
 import ResetPassword from "./pages/ResetPassword";
+import PaymentFormWrapper from "./components/Payment/PaymentFormWrapper";
 
 interface Role {
   userId: string;
@@ -69,7 +70,7 @@ function App() {
           <Route path="/guest/review" element={<ReviewsPage />}/>
           <Route path="/guest/bookings" element={<BookingsPage/>}/>
           <Route path="/host/properties" element={<BookingsPage/>}/>
-
+          <Route path="/payment/:bookingId" element={<PaymentFormWrapper />}/>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<UserManagement/>}/>
 
