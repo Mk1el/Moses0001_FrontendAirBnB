@@ -87,12 +87,12 @@ const HostDashboard: React.FC = () => {
       {/* ================= HEADER ================= */}
       <header className="flex flex-col md:flex-row justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-green-700">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-green-700 text-center">
             🏠 Host Dashboard
           </h1>
-          <p className="text-gray-600 mt-2 text-sm md:text-base">
+          {/* <p className="text-gray-600 mt-2 text-sm md:text-base">
             Welcome back, host! Here’s an overview of your property performance.
-          </p>
+          </p> */}
         </div>
         {/* <button
           onClick={handleLogout}
@@ -104,14 +104,16 @@ const HostDashboard: React.FC = () => {
       </header>
 
       {/* ================= SEARCH PROPERTIES ================= */}
-      <section className="mt-10 bg-white p-6 rounded-2xl shadow-lg">
+      <section className="ms-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
           Explore All Properties
         </h2>
         <SearchProperty />
       </section>
+      <div className="mb-4 py-4">
 
       <DashboardWidget items={widgetItems} />
+      </div>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
         {/* Earnings Over Time */}

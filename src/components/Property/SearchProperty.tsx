@@ -62,7 +62,8 @@ const SearchProperty: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl shadow-md">
+    // p-4 md:p-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl shadow-md
+    <div className="p-2 shadow: md">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-center text-blue-700">
           🏡 Find Your Perfect Stay
@@ -102,7 +103,7 @@ const SearchProperty: React.FC = () => {
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md transition-all duration-300 w-full md:w-auto disabled:bg-gray-400"
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md transition-all duration-300 w-full md:w-auto disabled:bg-gray-400"
           >
             <Search size={18} />
             {loading ? "Searching..." : "Apply"}

@@ -247,7 +247,7 @@ useEffect(()=>{
                   }}
                   className="w-full h-48 sm:h-56 object-cover"
                 /> */}
-                <span className="absolute left-3 top-3 bg-white/90 text-sm font-semibold text-green-700 px-3 py-1 rounded-full shadow">
+                <span className="absolute left-2 top-10 bg-white/90 text-sm font-semibold text-green-700 px-8 py-1 rounded-full shadow">
                   {formatCurrency(prop.pricePerNight, prop.currency)} / night
                 </span>
               </div>
