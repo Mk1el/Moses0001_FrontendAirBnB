@@ -1,8 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import axiosClient from "../api/axiosClient";
+import housingImage from "../assets/images/Login_Images.webp";
 
 interface RegisterForm {
   firstName: string;
@@ -39,11 +39,11 @@ export default function Register() {
 
   const validateForm = () => {
     if (!nameRegex.test(form.firstName)) {
-      toast.error("First name must contain only letters (2-30 characters)");
+      toast.error("First name must contain only letters (2–30 characters)");
       return false;
     }
     if (!nameRegex.test(form.lastName)) {
-      toast.error("Last name must contain only letters (2-30 characters)");
+      toast.error("Last name must contain only letters (2–30 characters)");
       return false;
     }
     if (!emailRegex.test(form.email)) {
@@ -52,7 +52,7 @@ export default function Register() {
     }
     if (!passwordRegex.test(form.password)) {
       toast.error(
-        "Password must be 8+ chars, include uppercase, lowercase, number & special character"
+        "Password must be 8+ chars with uppercase, lowercase, number & special character"
       );
       return false;
     }
@@ -65,24 +65,29 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     try {
       await axiosClient.post("/auth/register", form);
       toast.success("Registration successful! Please login.");
-
       setTimeout(() => navigate("/"), 1500);
     } catch (err: any) {
-      console.error("Registration error:", err);
       toast.error(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div
+      className="min-h-screen w-full bg-cover bg-center flex items-center justify-center relative"
+      style={{ backgroundImage: `url(${housingImage})` }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/50"></div>
+
       <Toaster position="top-center" />
-      <div className="p-8 bg-white rounded shadow-md w-full max-w-md">
+
+      {/* Card */}
+      <div className="relative z-10 p-8 bg-white rounded shadow-md w-full max-w-md mx-4">
         <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -131,7 +136,7 @@ export default function Register() {
             name="phoneNumber"
             value={form.phoneNumber}
             onChange={handleChange}
-            placeholder="Phone Number (e.g. +254712345678)"
+            placeholder="Phone Number (+2547...)"
             className="w-full p-3 border rounded"
             required
           />

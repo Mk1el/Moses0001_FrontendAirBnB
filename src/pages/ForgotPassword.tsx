@@ -4,7 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
 import { setForgotEmail } from "../utils/forgotSession";
-
+import housingImage from "../assets/images/Login_Images.webp";
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const[loading, setLoading] = useState(false);
@@ -25,7 +25,8 @@ export default function ForgotPassword() {
         }
     };
     return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{ backgroundImage: `url(${housingImage})` }}>
       <Toaster />
 
       <div className="p-8 bg-white rounded shadow-md w-full max-w-md">
