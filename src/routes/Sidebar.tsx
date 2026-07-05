@@ -135,22 +135,39 @@ export default function Sidebar({ userRole, isOpen = false, onClose }: SidebarPr
 
       {/* Mobile Sidebar */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
-          <div className="relative w-64 bg-white shadow-lg p-6 flex flex-col">
-            <button className="absolute top-4 right-4" onClick={onClose}>
-              <X />
-            </button>
-            <div className="mt-12 flex flex-col gap-4">
-              {renderMenu()}
-              <Link to="/profile" className={linkClasses("/profile")} onClick={onClose}>
-                <User size={20} /> Profile
-              </Link>
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 md:hidden">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={onClose}
+    />
+
+    {/* Sidebar panel */}
+    <aside className="relative w-72 h-full bg-white shadow-xl p-6 animate-slide-in">
+      <button
+        className="absolute top-4 right-4"
+        onClick={onClose}
+      >
+        <X size={24} />
+      </button>
+
+      <div className="mt-10 flex flex-col gap-4">
+        {renderMenu()}
+
+        <Link
+          to="/profile"
+          className={linkClasses("/profile")}
+          onClick={onClose}
+        >
+          <User size={20} /> Profile
+        </Link>
+
+        <LogoutButton />
+      </div>
+    </aside>
+  </div>
+)}
+
     </>
   );
 }

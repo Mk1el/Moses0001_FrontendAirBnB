@@ -101,13 +101,14 @@ const BookingsPage: React.FC = () => {
 //   { name: "endDate", label: "End Date", type: "date", required: true },
 // ];
   const filteredBookings = bookings.filter((booking)=>{
-    const query = searchQuery.toLowerCase();
+    // const query = searchQuery.toLowerCase();
+    const query = (searchQuery ?? "").toLowerCase();
     return (
-      booking.propertyName.toLowerCase().includes(query) ||
-      booking.status.toLowerCase().includes(query) ||
-      booking.startDate.includes(query) ||
-      booking.endDate.includes(query) ||
-      booking.totalPrice.toString().includes(query)
+      (booking.propertyName??"").toLowerCase().includes(query) ||
+      (booking.status??"").toLowerCase().includes(query) ||
+      (booking.startDate??"").includes(query) ||
+      (booking.endDate??"").includes(query) ||
+      (booking.totalPrice??"").toString().includes(query)
     )
   })
   useEffect(() => {
